@@ -26,7 +26,10 @@ let package = Package(
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "JupSwift",
-            dependencies: ["BigInt", "Clibsodium"]
+            dependencies: ["BigInt", "Clibsodium"],
+            resources: [
+                .process("Resources/english.txt")
+            ]
         ),
         .testTarget(
             name: "JupSwiftTests",
