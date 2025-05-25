@@ -162,7 +162,7 @@ public func generateMnemonic() -> String {
 
     // Calculate the checksum
     let hash = SHA256.hash(data: entropy)
-    let checksum = hash.prefix(1) // 取前 1 個字節作為 checksum
+    let checksum = hash.prefix(1) // Take the first byte as the checksum
 
     // Concatenate entropy and checksum bits
     let entropyWithChecksum = entropy + checksum
@@ -198,7 +198,7 @@ public func generateMnemonic() -> String {
     }
 }
 
-enum MnemonicValidationError: Error {
+public enum MnemonicValidationError: Error {
     case invalidWordCount
     case invalidWords(indexes: [Int])
 }
@@ -206,7 +206,7 @@ enum MnemonicValidationError: Error {
 /// Validates a BIP39 mnemonic phrase.
 /// - Parameter mnemonicArray: The mnemonic phrase string (e.g., "apple banana cherry ...").
 /// - Returns: `.success(())` if valid, otherwise `.failure` with reason.
-func validateMnemonics(_ mnemonicArray: String) -> Result<Void, MnemonicValidationError> {
+public func validateMnemonics(_ mnemonicArray: String) -> Result<Void, MnemonicValidationError> {
     let words = mnemonicArray.lowercased().split(separator: " ").map { String($0) }
 
     return validateMnemonics(words)
@@ -215,7 +215,7 @@ func validateMnemonics(_ mnemonicArray: String) -> Result<Void, MnemonicValidati
 /// Validates a BIP39 mnemonic phrase.
 /// - Parameter words: The mnemonic phrase as an array of words.
 /// - Returns: `.success(())` if valid, otherwise `.failure` with reason.
-func validateMnemonics(_ words: [String]) -> Result<Void, MnemonicValidationError> {
+public func validateMnemonics(_ words: [String]) -> Result<Void, MnemonicValidationError> {
     guard let wordlist = loadWordList() else {
         return .failure(.invalidWordCount) // fallback error
     }
@@ -236,7 +236,7 @@ func validateMnemonics(_ words: [String]) -> Result<Void, MnemonicValidationErro
     return .success(())
 }
 
-enum MnemonicWordValidationResult: Equatable {
+public enum MnemonicWordValidationResult: Equatable {
     case exactMatch
     case partialMatch
     case noMatch
@@ -248,7 +248,7 @@ enum MnemonicWordValidationResult: Equatable {
 ///   - `.exactMatch` if the word is valid and fully matches a word in the BIP39 list.
 ///   - `.partialMatch` if the word is a valid prefix of any word in the BIP39 list.
 ///   - `.noMatch` if it doesn't match any word or prefix.
-func validateMnemonicWord(_ word: String) -> MnemonicWordValidationResult {
+public func validateMnemonicWord(_ word: String) -> MnemonicWordValidationResult {
     guard let wordlist = loadWordList() else {
         return .noMatch // fallback in case wordlist fails to load
     }

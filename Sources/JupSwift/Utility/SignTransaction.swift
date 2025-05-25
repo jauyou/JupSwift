@@ -19,7 +19,7 @@ public func signTransaction(base64Transaction: String, privateKey: [UInt8]) -> S
     }
     let fullTransactionBytes = [UInt8](fullTransactionData)
 
-    let signatureCount = Int(fullTransactionBytes[0]) // 通常是 1
+    let signatureCount = Int(fullTransactionBytes[0])
     let signatureLength = 64
     let messageStartIndex = 1 + signatureCount * signatureLength
 
