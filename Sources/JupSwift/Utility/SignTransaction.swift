@@ -46,9 +46,7 @@ public func signTransaction(base64Transaction: String, privateKey: [UInt8]) -> S
     let signedTransaction: [UInt8] = [UInt8(signatureCount)] + signature + message
     let signedTransactionBase64 = Data(signedTransaction).base64EncodedString()
 
-    // ✅ 5. output result
-    print("✅ signed transaction in Base64:")
-    print(signedTransactionBase64)
+    // ✅ 5. return result
     
     return signedTransactionBase64
 }
