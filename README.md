@@ -149,4 +149,4 @@ Contributions to JupSwift are welcome! If you would like to contribute, please f
 Please ensure your code adheres to the existing style and includes relevant tests if applicable.
 
 ## License
-JupSwift is released under the MIT license. See LICENSE for details.
+JupSwift is released under the MIT license. See [LICENSE](https://github.com/jauyou/JupSwift/blob/main/LICENSE) for details.
