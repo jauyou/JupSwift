@@ -52,22 +52,26 @@ struct WalletManagerTests {
             privateKeyCount = await manager.getPrivateKeysEntry().count
             #expect(privateKeyCount == 2)
             
-            var privateKey = try await manager.getPrivateKeysEntryAtIndex(index: 1)
+            privateKeyEntry = try await manager.getPrivateKeysEntryAtIndex(index: 1)
             #expect(privateKeyEntry.address == "2Hgf4yX6Xgv9jYisdyKPLpbgLAf8MEE4cuByUv7bYkvX")
+            var privateKetBase58 = try await manager.getPrivateKeyBase58(id: privateKeyEntry.id)
+            #expect(privateKetBase58 == "5H9zE9jtbsigsKRv5CTTZr8mCRYAyv9246bZFxkkLUyfhb3dDDPCgzR5L443J7oDZQvLSMqmT9mhscHGg1Zfo8xb")
             
             // import a private key
             let inputPrivateKey = "5JhEPjhLsS5zV9oacTrFWbmwogSeTq1L7Cn1KRSequcrWi971gLHd8bPb5ZTRzdBkcBc3EnhGTFYezb5HihcxbfD"
             _ = try await manager.addPrivateKey(inputPrivateKey)
-            privateKey = try await manager.getPrivateKeysEntryAtIndex(index: 2)
-            #expect(privateKey.address == "EKoFjerWQxNpwbj2piTgp89miobEe8nBKDPQvgeYzhH1")
+            privateKeyEntry = try await manager.getPrivateKeysEntryAtIndex(index: 2)
+            #expect(privateKeyEntry.address == "EKoFjerWQxNpwbj2piTgp89miobEe8nBKDPQvgeYzhH1")
+            privateKetBase58 = try await manager.getPrivateKeyBase58(id: privateKeyEntry.id)
+            #expect(privateKetBase58 == "5JhEPjhLsS5zV9oacTrFWbmwogSeTq1L7Cn1KRSequcrWi971gLHd8bPb5ZTRzdBkcBc3EnhGTFYezb5HihcxbfD")
             
-            privateKeyEntry = try await manager.deriveAndAddPrivateKeyAt(index: 0)
-            privateKey = try await manager.getPrivateKeysEntryAtIndex(index: 3)
-            #expect(privateKey.address == "36zzFa2XdbAZWvV62eLDhmv9PJfdTRNVY1T915Z4P6hC")
+            _ = try await manager.deriveAndAddPrivateKeyAt(index: 0)
+            privateKeyEntry = try await manager.getPrivateKeysEntryAtIndex(index: 3)
+            #expect(privateKeyEntry.address == "36zzFa2XdbAZWvV62eLDhmv9PJfdTRNVY1T915Z4P6hC")
             
-            privateKeyEntry = try await manager.deriveAndAddPrivateKeyAt(index: 0)
-            privateKey = try await manager.getPrivateKeysEntryAtIndex(index: 4)
-            #expect(privateKey.address == "8LyaHvb6eeUw2M6yikT55RqrzMvijNzq5tFqfA67wULT")
+            _ = try await manager.deriveAndAddPrivateKeyAt(index: 0)
+            privateKeyEntry = try await manager.getPrivateKeysEntryAtIndex(index: 4)
+            #expect(privateKeyEntry.address == "8LyaHvb6eeUw2M6yikT55RqrzMvijNzq5tFqfA67wULT")
             
             privateKeyCount = await manager.getPrivateKeysEntry().count
             #expect(privateKeyCount == 5)

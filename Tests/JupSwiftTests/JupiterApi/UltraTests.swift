@@ -32,7 +32,7 @@ struct UltraTests {
         let result = try await JupiterApi.order(inputMint: inputMint, outputMint: outputMint, amount: amount, taker: taker)
         
         #expect(result.inAmount == amount)
-        
+        print("amout: \(amount)")
         print("✅ Order response: \(result)")
     }
     
