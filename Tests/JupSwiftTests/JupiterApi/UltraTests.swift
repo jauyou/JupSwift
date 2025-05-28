@@ -36,6 +36,14 @@ struct UltraTests {
         print("✅ Order response: \(result)")
     }
     
+    /// Tests the ultraSwap function with given token mints and amount.
+    ///
+    /// ⚠️ To run this test successfully:
+    /// - Replace `taker` with a valid Solana wallet address.
+    /// - Replace `privateKey` with the corresponding private key for that address.
+    /// - Ensure the wallet has a sufficient balance of the input token (e.g., USDC).
+    ///
+    /// This test will fail if any of the above conditions are not met.
     @Test
     func testUltraSwap() async throws {
         let inputMint = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" // USDC
@@ -84,5 +92,32 @@ struct UltraTests {
         #expect(!routers.isEmpty, "Routers array should not be empty")
 
         print("✅ Routers: \(routers)")
+    }
+    
+    /// Tests the ultraSwap function with given token mints and amount.
+    ///
+    /// ⚠️ To run this test successfully:
+    /// - Replace `taker` with a valid Solana wallet address.
+    /// - Ensure the wallet has a sufficient balance of the input token (e.g., USDC).
+    ///
+    /// This test will fail if any of the above conditions are not met.
+    @Test
+    func testUltraSwapUsingWallet() async throws {
+        let inputMint = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" // USDC
+        let outputMint = "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN" // JUP
+        let amount = "22763399" // minimal（lamports）
+        let taker = "YOUR_SOLANA_ADDRESS_HERE" // replace by address
+
+        do {
+            _ = try await JupiterApi.ultraSwap(
+                inputMint: inputMint,
+                outputMint: outputMint,
+                amount: amount,
+                taker: taker
+            )
+        } catch {
+            print("❌ UltraSwap failed with error: \(error)")
+            throw error
+        }
     }
 }

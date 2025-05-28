@@ -39,6 +39,7 @@ public struct PrivateKeyEntry: Codable, Sendable {
 /// - `mnemonics`: Array of stored mnemonic entries.
 /// - `privateKeys`: Array of stored private key entries.
 struct WalletData: Codable {
+    var currentWalletIndex: Int = 0
     var mnemonics: [MnemonicEntry]
     var privateKeys: [PrivateKeyEntry]
 }

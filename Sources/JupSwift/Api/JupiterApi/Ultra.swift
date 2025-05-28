@@ -128,4 +128,32 @@ public extension JupiterApi {
         let response = try await execute(signedTransaction: signedTx, requestId: orderResponse.requestId)
         return response
     }
+    
+    /// Performs a token swap using Jupiter's UltraSwap API.
+    ///
+    /// This method:
+    /// 1. Creates a swap order using the provided token mints, amount, and taker address.
+    /// 2. Extracts the base64-encoded transaction from the order response.
+    /// 3. Signs the transaction using the local wallet (via `WalletManager`).
+    /// 4. Executes the signed transaction on-chain and returns the result.
+    ///
+    /// - Parameters:
+    ///   - inputMint: The mint address of the input token (e.g. USDC).
+    ///   - outputMint: The mint address of the output token (e.g. JUP).
+    ///   - amount: The amount of input token to swap, in the smallest unit (e.g. lamports).
+    ///   - taker: (Optional) The wallet address performing the swap. May be required by the API.
+    /// - Throws: An error if order creation, transaction signing, or execution fails.
+    /// - Returns: An `ExecuteResponse` representing the result of the swap.
+    static func ultraSwap(inputMint: String, outputMint: String, amount: String, taker: String?)  async throws -> ExecuteResponse {
+        let orderResponse = try await order(inputMint: inputMint, outputMint: outputMint, amount: amount, taker: taker)
+
+        guard let transaction = orderResponse.transaction else {
+            throw NSError(domain: "No transaction to execute", code: -1)
+        }
+
+        let manager = WalletManager()
+        let signedTx = try await manager.signTransaction(base64Transaction: transaction)
+        let response = try await execute(signedTransaction: signedTx, requestId: orderResponse.requestId)
+        return response
+    }
 }
