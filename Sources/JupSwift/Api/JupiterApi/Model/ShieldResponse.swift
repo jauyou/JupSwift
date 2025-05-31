@@ -13,8 +13,4 @@ public struct TokenWarning: Codable, Hashable, Sendable {
 
 public struct ShieldResponse: Codable, Hashable, Sendable {
     public let warnings: [String: [TokenWarning]]
-
-    private enum CodingKeys: String, CodingKey {
-        case warnings
-    }
 }

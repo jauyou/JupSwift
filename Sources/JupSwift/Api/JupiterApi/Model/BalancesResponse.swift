@@ -6,10 +6,10 @@
 //
 
 public struct TokenBalance: Codable, Hashable, Sendable {
-    let amount: String
-    let uiAmount: Double
-    let slot: Int
-    let isFrozen: Bool
+    public let amount: String
+    public let uiAmount: Double
+    public let slot: Int
+    public let isFrozen: Bool
 }
 
 public struct BalancesResponse: Codable, Hashable, Sendable {

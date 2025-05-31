@@ -6,37 +6,37 @@
 //
 
 public struct RoutePlan: Codable, Hashable, Sendable {
-    let swapInfo: SwapInfo
-    let percent: Int
+    public let swapInfo: SwapInfo
+    public let percent: Int
 }
 
 public struct SwapInfo: Codable, Hashable, Sendable {
-    let ammKey: String
-    let label: String
-    let inputMint: String
-    let outputMint: String
-    let inAmount: String
-    let outAmount: String
-    let feeAmount: String
-    let feeMint: String
+    public let ammKey: String
+    public let label: String
+    public let inputMint: String
+    public let outputMint: String
+    public let inAmount: String
+    public let outAmount: String
+    public let feeAmount: String
+    public let feeMint: String
 }
 
 public struct PlatformFee: Codable, Hashable, Sendable {
-    let amount: String
-    let feeBps: Int
+    public let amount: String
+    public let feeBps: Int
 }
 
 public struct DynamicSlippageReport: Codable, Hashable, Sendable {
-    let amplificationRatio: String?
-    let otherAmount: Int?
-    let simulatedIncurredSlippageBps: Int?
-    let slippageBps: Int
-    let categoryName: String
-    let heuristicMaxSlippageBps: Int
+    public let amplificationRatio: String?
+    public let otherAmount: Int?
+    public let simulatedIncurredSlippageBps: Int?
+    public let slippageBps: Int
+    public let categoryName: String
+    public let heuristicMaxSlippageBps: Int
 }
 
 public struct OrderResponse: Codable, Hashable, Sendable {
-    public let inputMint: String        // require but nullable
+    public let inputMint: String
     public let outputMint: String
     public let inAmount: String
     public let outAmount: String

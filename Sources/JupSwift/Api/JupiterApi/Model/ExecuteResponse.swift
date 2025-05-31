@@ -6,10 +6,10 @@
 //
 
 public struct SwapEvent: Codable, Hashable, Sendable {
-    let inputMint: String
-    let inputAmount: String
-    let outputMint: String
-    let outputAmount: String
+    public let inputMint: String
+    public let inputAmount: String
+    public let outputMint: String
+    public let outputAmount: String
 }
 
 public struct ExecuteResponse: Codable, Hashable, Sendable {
@@ -22,7 +22,7 @@ public struct ExecuteResponse: Codable, Hashable, Sendable {
     public let swapEvents: [SwapEvent]?
 }
 
-struct ExecuteOrderRequest: Encodable {
+internal struct ExecuteOrderRequest: Encodable {
     let signedTransaction: String
     let requestId: String
 }
