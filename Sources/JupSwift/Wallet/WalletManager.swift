@@ -326,4 +326,63 @@ public actor WalletManager {
         }
         return self.wallet.privateKeys[index]
     }
+    
+    /// Returns the address of the currently selected wallet.
+    ///
+    /// This method accesses the `privateKeys` array using the `currentWalletIndex`
+    /// to retrieve the corresponding wallet address.
+    ///
+    /// - Throws: `WalletError.indexOutOfBounds` if the `currentWalletIndex` exceeds the available keys.
+    /// - Returns: The address (`String`) of the currently selected wallet.
+    public func getCurrentAddress() throws -> String {
+        guard self.wallet.currentWalletIndex < self.wallet.privateKeys.count else {
+            throw WalletError.indexOutOfBounds
+        }
+        return self.wallet.privateKeys[self.wallet.currentWalletIndex].address
+    }
+    
+    /// Returns the Base58-encoded private key of the currently selected wallet.
+    ///
+    /// This method retrieves the wallet at `currentWalletIndex` from the `privateKeys` array,
+    /// then loads the corresponding private key (in Base58 format) by its unique `id`.
+    ///
+    /// - Throws:
+    ///   - `WalletError.indexOutOfBounds` if the `currentWalletIndex` is invalid.
+    ///   - Any error thrown by `getPrivateKeyBase58(id:)`, such as decryption failure or key not found.
+    /// - Returns: A Base58-encoded private key (`String`) for the current wallet.
+    public func getCurrentPrivateKey() async throws -> String {
+        guard self.wallet.currentWalletIndex < self.wallet.privateKeys.count else {
+            throw WalletError.indexOutOfBounds
+        }
+        return try getPrivateKeyBase58(id: self.wallet.privateKeys[self.wallet.currentWalletIndex].id)
+    }
+    
+    /// Sets the current wallet index to the specified value.
+    ///
+    /// This method updates `currentWalletIndex` to point to a different wallet
+    /// in the `privateKeys` array, allowing subsequent operations to act on the selected wallet.
+    ///
+    /// - Parameter index: The target index of the wallet to be set as current.
+    /// - Throws: `WalletError.indexOutOfBounds` if the index is outside the bounds of the `privateKeys` array.
+    public func setCurrentWalletAtIndex(_ index: Int) throws {
+        guard index < self.wallet.privateKeys.count else {
+            throw WalletError.indexOutOfBounds
+        }
+        self.wallet.currentWalletIndex = index
+    }
+    
+    /// Signs a base64-encoded Solana transaction using the current wallet's private key.
+    ///
+    /// This method retrieves the Base58-encoded private key of the currently selected wallet,
+    /// then uses it to sign the given transaction via the `JupSwift` signing utility.
+    ///
+    /// - Parameter base64Transaction: A Solana transaction encoded in base64 format.
+    /// - Throws:
+    ///   - An error if the current private key cannot be retrieved.
+    ///   - Any error thrown by the `JupSwift.signTransaction` method during signing.
+    /// - Returns: A signed transaction encoded in base64 format.
+    public func signTransaction(base64Transaction: String) async throws -> String {
+        let privateKey = try await getCurrentPrivateKey()
+        return JupSwift.signTransaction(base64Transaction: base64Transaction, privateKey: privateKey)
+    }
 }
