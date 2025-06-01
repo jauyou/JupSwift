@@ -27,7 +27,7 @@ import LocalAuthentication
 /// For more information on Secure Enclave and its security features, see:
 /// https://support.apple.com/en-sg/guide/security/sec59b0b31ff/web
 class AESWalletCrypto {
-    private static let keyAlias = "com.maxwell.wallet.secureEnclaveKey"
+    private static let keyAlias = "ag.jup.wallet.secureEnclaveKey"
 
     private init() {}
 
@@ -174,7 +174,7 @@ class AESWalletCrypto {
     /// - Returns: The encrypted data.
     /// - Throws: An error if encryption fails or the key cannot be accessed.
     static func encrypt(_ plaintext: Data) throws -> Data {
-        let key = try loadOrGenerateKeyFromLocal()
+        let key = try loadOrGenerateKey()
         return try AES.GCM.seal(plaintext, using: key).combined!
     }
 
@@ -184,7 +184,7 @@ class AESWalletCrypto {
     /// - Returns: The decrypted plaintext data.
     /// - Throws: An error if decryption fails or the key cannot be accessed.
     static func decrypt(_ encryptedData: Data) throws -> Data {
-        let key = try loadOrGenerateKeyFromLocal()
+        let key = try loadOrGenerateKey()
         let sealedBox = try AES.GCM.SealedBox(combined: encryptedData)
         return try AES.GCM.open(sealedBox, using: key)
     }
