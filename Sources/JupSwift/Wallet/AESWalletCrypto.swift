@@ -146,6 +146,11 @@ class AESWalletCrypto {
         let context = LAContext()
         context.localizedReason = "Authenticate to access wallet"
 
+        // Set reuse duration to 30 seconds
+        if #available(iOS 13.0, *) {
+            context.touchIDAuthenticationAllowableReuseDuration = 30
+        }
+        
         var query: [String: Any] = [
             kSecClass as String: kSecClassKey,
             kSecAttrApplicationTag as String: keyAlias,
