@@ -14,9 +14,9 @@ import Foundation
 /// - `createdAt`: Timestamp when this mnemonic was created.
 /// - `generatedAddressCount`: Tracks how many addresses have been derived/generated from this mnemonic.
 public struct MnemonicEntry: Codable, Sendable {
-    let id: UUID
-    let encryptedData: Data
-    let createdAt: Date
+    public let id: UUID
+    public let encryptedData: Data
+    public let createdAt: Date
     var generatedAddressCount: Int = 0
 }
 
@@ -27,11 +27,11 @@ public struct MnemonicEntry: Codable, Sendable {
 /// - `sourceMnemonicID`: Optional reference to the mnemonic entry from which this key was derived.
 /// - `createdAt`: Timestamp when this private key was created or added.
 public struct PrivateKeyEntry: Codable, Sendable {
-    let id: UUID
-    let address: String
-    let encryptedData: Data
-    let sourceMnemonicID: UUID?
-    let createdAt: Date
+    public let id: UUID
+    public let address: String
+    public let encryptedData: Data
+    public let sourceMnemonicID: UUID?
+    public let createdAt: Date
 }
 
 /// Aggregates all wallet-related data, including mnemonics and private keys.
@@ -52,7 +52,7 @@ struct WalletData: Codable {
 /// - `encodingFailed`: Encoding of data to persistent format failed.
 /// - `decodingFailed`: Decoding of persisted data failed.
 /// - `indexOutOfBounds`: Requested index exceeds available entries.
-enum WalletError: Error, LocalizedError {
+public enum WalletError: Error, LocalizedError {
     case notFound
     case invalidPrivateKeyFormat
     case decryptionFailed(Error)
@@ -60,7 +60,7 @@ enum WalletError: Error, LocalizedError {
     case decodingFailed
     case indexOutOfBounds
 
-    var errorDescription: String? {
+    public var errorDescription: String? {
         switch self {
         case .notFound:
             return "Entry not found."
