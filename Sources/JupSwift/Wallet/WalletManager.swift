@@ -385,4 +385,12 @@ public actor WalletManager {
         let privateKey = try await getCurrentPrivateKey()
         return JupSwift.signTransaction(base64Transaction: base64Transaction, privateKey: privateKey)
     }
+    
+    /// Automatically generates a new mnemonic phrase within the wallet and adds it.
+    /// - Returns: A `MnemonicEntry` representing the newly added mnemonic.
+    /// - Throws: An error if adding the mnemonic fails.
+    public func generateMnemonicForWallet() async throws -> MnemonicEntry {
+        let mnemonic = generateMnemonic()
+        return try await addMnemonic(mnemonic)
+    }
 }
