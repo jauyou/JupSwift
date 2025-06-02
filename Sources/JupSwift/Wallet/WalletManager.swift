@@ -104,7 +104,7 @@ public actor WalletManager {
         if (wallet.mnemonics.count != 0) {
             return wallet.mnemonics.first!
         }
-        let encrypted = try AESWalletCrypto.encrypt(Data(mnemonic.utf8))
+        let encrypted = try await AESWalletCrypto.shared.encrypt(Data(mnemonic.utf8))
         var entry = MnemonicEntry(id: UUID(), encryptedData: encrypted, createdAt: Date(), generatedAddressCount: 0)
         wallet.mnemonics.append(entry)
         
@@ -128,11 +128,11 @@ public actor WalletManager {
     /// - Throws:
     ///   - `WalletError.notFound` if no mnemonic entry matches the given UUID.
     ///   - `WalletError.decodingFailed` if decryption or UTF-8 conversion fails.
-    public func getMnemonic(id: UUID) throws -> String {
+    public func getMnemonic(id: UUID) async throws -> String {
         guard let entry = wallet.mnemonics.first(where: { $0.id == id }) else {
             throw WalletError.notFound
         }
-        let decrypted = try AESWalletCrypto.decrypt(entry.encryptedData)
+        let decrypted = try await AESWalletCrypto.shared.decrypt(entry.encryptedData)
         guard let mnemonic = String(data: decrypted, encoding: .utf8) else {
             throw WalletError.decodingFailed
         }
@@ -149,13 +149,13 @@ public actor WalletManager {
     /// - Throws:
     ///   - `WalletError.notFound` if the index is out of bounds.
     ///   - `WalletError.decodingFailed` if decryption or UTF-8 conversion fails.
-    public func getMnemonic(at index: Int) throws -> String {
+    public func getMnemonic(at index: Int) async throws -> String {
         guard wallet.mnemonics.indices.contains(index) else {
             throw WalletError.indexOutOfBounds
         }
 
         let entry = wallet.mnemonics[index]
-        let decrypted = try AESWalletCrypto.decrypt(entry.encryptedData)
+        let decrypted = try await AESWalletCrypto.shared.decrypt(entry.encryptedData)
 
         guard let mnemonic = String(data: decrypted, encoding: .utf8) else {
             throw WalletError.decodingFailed
@@ -182,7 +182,7 @@ public actor WalletManager {
             throw WalletError.invalidPrivateKeyFormat
         }
 
-        let encrypted = try AESWalletCrypto.encrypt(Data(keyData))
+        let encrypted = try await AESWalletCrypto.shared.encrypt(Data(keyData))
         guard let publicKey = PrivateKey.extractBase58PublicKey(from: Data(keyData)) else { throw WalletError.invalidPrivateKeyFormat }
         let entry = PrivateKeyEntry(id: UUID(), address: publicKey, encryptedData: encrypted, sourceMnemonicID: fromMnemonicID, createdAt: Date())
         wallet.privateKeys.append(entry)
@@ -200,12 +200,12 @@ public actor WalletManager {
     /// - Throws:
     ///   - `WalletError.notFound` if no private key entry with the given ID exists.
     ///   - Any error thrown during decryption or Base58 encoding.
-    public func getPrivateKeyBase58(id: UUID) throws -> String {
+    public func getPrivateKeyBase58(id: UUID) async throws -> String {
         guard let entry = wallet.privateKeys.first(where: { $0.id == id }) else {
             throw WalletError.notFound
         }
 
-        let decrypted = try AESWalletCrypto.decrypt(entry.encryptedData)
+        let decrypted = try await AESWalletCrypto.shared.decrypt(entry.encryptedData)
         return decrypted.toBase58String()
     }
 
@@ -223,7 +223,7 @@ public actor WalletManager {
     ///   - `WalletError.encodingFailed` if keypair derivation fails.
     ///   - Any error thrown during encryption or saving to disk.
     func deriveAndAddPrivateKey(from entry: MnemonicEntry, index: Int) async throws -> PrivateKeyEntry {
-        let mnemonic = try getMnemonic(id: entry.id)
+        let mnemonic = try await getMnemonic(id: entry.id)
         guard let keypair = keypairOfMnemonicWalletByIndex(index: index, mnemonic: mnemonic) else {
             throw WalletError.encodingFailed
         }
@@ -354,7 +354,7 @@ public actor WalletManager {
         guard self.wallet.currentWalletIndex < self.wallet.privateKeys.count else {
             throw WalletError.indexOutOfBounds
         }
-        return try getPrivateKeyBase58(id: self.wallet.privateKeys[self.wallet.currentWalletIndex].id)
+        return try await getPrivateKeyBase58(id: self.wallet.privateKeys[self.wallet.currentWalletIndex].id)
     }
     
     /// Sets the current wallet index to the specified value.
