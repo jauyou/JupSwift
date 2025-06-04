@@ -76,7 +76,7 @@ struct UltraTests {
         do {
             let result = try await JupiterApi.shield(mints: mints)
 
-//            #expect(!result.shields.isEmpty, "Shield list should not be empty")
+            #expect(!result.warnings.isEmpty, "Shield list should not be empty")
 
             print("✅ Shield response: \(result)")
         } catch {
@@ -103,17 +103,18 @@ struct UltraTests {
     /// This test will fail if any of the above conditions are not met.
     @Test
     func testUltraSwapUsingWallet() async throws {
+        let manager = WalletManager()
+        try await manager.resetWallet()
+        _ = try await manager.addMnemonic("YOUR_MNEMONIC_HERE")
         let inputMint = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" // USDC
         let outputMint = "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN" // JUP
         let amount = "22763399" // minimal（lamports）
-        let taker = "YOUR_SOLANA_ADDRESS_HERE" // replace by address
 
         do {
             _ = try await JupiterApi.ultraSwap(
                 inputMint: inputMint,
                 outputMint: outputMint,
-                amount: amount,
-                taker: taker
+                amount: amount
             )
         } catch {
             print("❌ UltraSwap failed with error: \(error)")
