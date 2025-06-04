@@ -26,10 +26,19 @@ import LocalAuthentication
 ///
 /// For more information on Secure Enclave and its security features, see:
 /// https://support.apple.com/en-sg/guide/security/sec59b0b31ff/web
-class AESWalletCrypto {
-    private static let keyAlias = "com.maxwell.wallet.secureEnclaveKey"
+actor AESWalletCrypto {
+    private let keyAlias = "ag.jup.wallet.secureEnclaveKey"
+    static let shared = AESWalletCrypto()
+    private let context = LAContext()
 
-    private init() {}
+    private init() {
+        if #available(iOS 13.0, *) {
+            context.localizedReason = "Authenticate to access wallet"
+            context.interactionNotAllowed = false
+            // Set reuse duration to 30 seconds
+            context.touchIDAuthenticationAllowableReuseDuration = 30
+        }
+    }
 
     
     enum AESKeyStorageError: Error {
@@ -50,7 +59,7 @@ class AESWalletCrypto {
     ///
     /// - Returns: A `SymmetricKey` that was loaded or newly generated.
     /// - Throws: An error if the key could not be saved to disk.
-    static func loadOrGenerateKeyFromLocal() throws -> SymmetricKey {
+    func loadOrGenerateKeyFromLocal() throws -> SymmetricKey {
         if let keyData = try? Data(contentsOf: keyFileURL) {
             print("Loaded AES key from file.")
             return SymmetricKey(data: keyData)
@@ -75,7 +84,7 @@ class AESWalletCrypto {
     /// This uses the application's support directory to persist the key in a safe, sandboxed location.
     /// - Note: The file is named "aes.key" and is saved under the app's Application Support directory.
     ///         Ensure proper file protection and access controls if used in production.
-    private static var keyFileURL: URL {
+    private var keyFileURL: URL {
         let fileManager = FileManager.default
         let appSupportURL = try! fileManager.url(
             for: .applicationSupportDirectory,
@@ -91,7 +100,7 @@ class AESWalletCrypto {
     ///
     /// - Returns: A `SymmetricKey` used for encrypting/decrypting wallet data.
     /// - Throws: An error if key generation or loading fails.
-    private static func loadOrGenerateKey() throws -> SymmetricKey {
+    private func loadOrGenerateKey() throws -> SymmetricKey {
         do {
             let key = try getKeyFromSecureEnclave()
             return key
@@ -107,7 +116,7 @@ class AESWalletCrypto {
     ///
     /// - Parameter key: The `SymmetricKey` to be securely stored.
     /// - Throws: An error if saving the key fails.
-    private static func saveKeyToSecureEnclave(_ key: SymmetricKey) throws {
+    private func saveKeyToSecureEnclave(_ key: SymmetricKey) throws {
         let keyData = key.withUnsafeBytes { Data($0) }
 
         var accessControlError: Unmanaged<CFError>?
@@ -123,8 +132,6 @@ class AESWalletCrypto {
         ]
 
         if #available(iOS 14.0, *) {
-            let context = LAContext()
-            context.interactionNotAllowed = false
             query[kSecUseAuthenticationContext as String] = context
         } else {
             query[kSecUseAuthenticationUI as String] = kSecUseAuthenticationUIAllow
@@ -142,10 +149,7 @@ class AESWalletCrypto {
     ///
     /// - Returns: The retrieved `SymmetricKey`.
     /// - Throws: An error if the key cannot be found or retrieval fails.
-    private static func getKeyFromSecureEnclave() throws -> SymmetricKey {
-        let context = LAContext()
-        context.localizedReason = "Authenticate to access wallet"
-
+    private func getKeyFromSecureEnclave() throws -> SymmetricKey {
         var query: [String: Any] = [
             kSecClass as String: kSecClassKey,
             kSecAttrApplicationTag as String: keyAlias,
@@ -173,8 +177,8 @@ class AESWalletCrypto {
     /// - Parameter plaintext: The raw data to be encrypted.
     /// - Returns: The encrypted data.
     /// - Throws: An error if encryption fails or the key cannot be accessed.
-    static func encrypt(_ plaintext: Data) throws -> Data {
-        let key = try loadOrGenerateKeyFromLocal()
+    func encrypt(_ plaintext: Data) throws -> Data {
+        let key = try loadOrGenerateKey()
         return try AES.GCM.seal(plaintext, using: key).combined!
     }
 
@@ -183,8 +187,8 @@ class AESWalletCrypto {
     /// - Parameter encryptedData: The data to decrypt.
     /// - Returns: The decrypted plaintext data.
     /// - Throws: An error if decryption fails or the key cannot be accessed.
-    static func decrypt(_ encryptedData: Data) throws -> Data {
-        let key = try loadOrGenerateKeyFromLocal()
+    func decrypt(_ encryptedData: Data) throws -> Data {
+        let key = try loadOrGenerateKey()
         let sealedBox = try AES.GCM.SealedBox(combined: encryptedData)
         return try AES.GCM.open(sealedBox, using: key)
     }

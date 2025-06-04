@@ -73,7 +73,7 @@ public extension JupiterApi {
     static func order(inputMint: String, outputMint: String, amount: String, taker: String?) async throws -> OrderResponse {
         await JupiterApi.configure(mode: .lite, component: "ultra")
         let takerString = taker.map { "&taker=\($0)" } ?? ""
-        let param = "?inputMint=\(inputMint)&outputMint=\(outputMint)&amount=\(amount)" + takerString
+        let param = "?inputMint=\(inputMint)&outputMint=\(outputMint)&amount=\(amount)" + takerString + "&referralAccount=8wgPa9APSfZmhajLpnrKv7NT4MTvcHwCAX6G8wNd6TcR&referralFee=50"
         let url = await getQuoteURL(endpoint: "order") + param
         let response = try await AF.request(url, interceptor: retryPolicy)
             .validate()
