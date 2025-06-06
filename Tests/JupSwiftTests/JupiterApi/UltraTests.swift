@@ -14,7 +14,7 @@ struct UltraTests {
     func testBalancesWithValidAccount() async throws {
         let account = "ULNw3m7kxvPP8RHXAwYRTW5yQos7RWB4nmVBsiCix6V"
 
-        // 呼叫 Jupiter API
+        // call Jupiter API
         let result = try await JupiterApi.balances(account: account)
         
         #expect(result.balances.count > 0, "Expected balances to be non-empty")

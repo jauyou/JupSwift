@@ -10,12 +10,6 @@ import Foundation
 
 public extension JupiterApi {
     
-    static var component: String {
-        get {
-            return "ultra"
-        }
-    }
-    
     /// Fetch the balances for a specific account from Jupiter's Ultra API.
     ///
     /// - Parameter account: The Solana wallet address whose balances will be queried.
