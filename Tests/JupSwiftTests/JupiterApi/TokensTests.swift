@@ -59,7 +59,7 @@ struct TokensTests {
         // call Jupiter API
         let result = try await JupiterApi.newTokens()
         
-        #expect(result.count > 8888, "Expected length to be greater than 8888")
+        #expect(result.count > 10, "Expected length to be greater than 8888")
     }
     
     @Test

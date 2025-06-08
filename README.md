@@ -60,7 +60,7 @@ let result = try await JupiterApi.balances(account: account)
 2.  get an order
 ```swift
 let inputMint = "So11111111111111111111111111111111111111112"    // SOL
-let outputMint = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"  // JUP
+let outputMint = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"  // USDC
 let amount = "1000000"                                           
 let taker = { your address }
         
