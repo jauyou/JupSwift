@@ -17,7 +17,7 @@ public extension JupiterApi {
     /// - Throws: An error if the request fails or decoding fails.
     static func balances(account: String) async throws -> BalancesResponse {
         await JupiterApi.configure(mode: .lite, component: "ultra")
-        let url = await getQuoteURL(endpoint: "balances/") + account
+        let url = await getQuoteURL(endpoint: "/balances/") + account
         let response = try await AF.request(url, interceptor: retryPolicy)
             .validate()
             .serializingDecodable(BalancesResponse.self)
@@ -33,7 +33,7 @@ public extension JupiterApi {
     static func shield(mints: [String]) async throws -> ShieldResponse {
         await JupiterApi.configure(mode: .lite, component: "ultra")
         let mintString = mints.joined(separator: ",")
-        let url = await getQuoteURL(endpoint: "shield") + "?mints=" + mintString
+        let url = await getQuoteURL(endpoint: "/shield") + "?mints=" + mintString
         let response = try await AF.request(url, interceptor: retryPolicy)
             .validate()
             .serializingDecodable(ShieldResponse.self)
@@ -47,7 +47,7 @@ public extension JupiterApi {
     /// - Throws: An error if the request fails or decoding fails.
     static func routers() async throws -> [Router] {
         await JupiterApi.configure(mode: .lite, component: "ultra")
-        let url = await getQuoteURL(endpoint: "order/routers")
+        let url = await getQuoteURL(endpoint: "/order/routers")
         let response = try await AF.request(url, interceptor: retryPolicy)
             .validate()
             .serializingDecodable([Router].self)
@@ -68,7 +68,7 @@ public extension JupiterApi {
         await JupiterApi.configure(mode: .lite, component: "ultra")
         let takerString = taker.map { "&taker=\($0)" } ?? ""
         let param = "?inputMint=\(inputMint)&outputMint=\(outputMint)&amount=\(amount)" + takerString + "&referralAccount=8wgPa9APSfZmhajLpnrKv7NT4MTvcHwCAX6G8wNd6TcR&referralFee=50"
-        let url = await getQuoteURL(endpoint: "order") + param
+        let url = await getQuoteURL(endpoint: "/order") + param
         let response = try await AF.request(url, interceptor: retryPolicy)
             .validate()
             .serializingDecodable(OrderResponse.self)
@@ -85,7 +85,7 @@ public extension JupiterApi {
     /// - Throws: An error if the request fails or the response cannot be decoded.
     static func execute(signedTransaction: String, requestId: String) async throws -> ExecuteResponse {
         await JupiterApi.configure(mode: .lite, component: "ultra")
-        let url = await getQuoteURL(endpoint: "execute")
+        let url = await getQuoteURL(endpoint: "/execute")
         let requestBody = ExecuteOrderRequest(signedTransaction: signedTransaction, requestId: requestId)
         let headers = await getHeaders()
 

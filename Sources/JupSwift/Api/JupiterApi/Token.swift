@@ -21,7 +21,7 @@ public extension JupiterApi {
     /// - Throws: An error if the request fails, the response is invalid, or decoding fails.
     static func token(mint: String) async throws -> TokenInfoResponse {
         await JupiterApi.configure(mode: .lite, component: "tokens")
-        let url = await getQuoteURL(endpoint: "token/") + mint
+        let url = await getQuoteURL(endpoint: "/token/") + mint
         let response = try await AF.request(url, interceptor: retryPolicy)
             .validate()
             .serializingDecodable(TokenInfoResponse.self)
@@ -36,7 +36,7 @@ public extension JupiterApi {
     /// - Throws: An error if the network request fails or the response cannot be decoded.
     static func market(market: String) async throws -> [String] {
         await JupiterApi.configure(mode: .lite, component: "tokens")
-        let url = await getQuoteURL(endpoint: "market/\(market)/mints")
+        let url = await getQuoteURL(endpoint: "/market/\(market)/mints")
         let response = try await AF.request(url, interceptor: retryPolicy)
             .validate()
             .serializingDecodable([String].self)
@@ -50,7 +50,7 @@ public extension JupiterApi {
     /// - Throws: An error if the network request fails or the response cannot be decoded.
     static func tradableTokens() async throws -> [String] {
         await JupiterApi.configure(mode: .lite, component: "tokens")
-        let url = await getQuoteURL(endpoint: "mints/tradable")
+        let url = await getQuoteURL(endpoint: "/mints/tradable")
         let response = try await AF.request(url, interceptor: retryPolicy)
             .validate()
             .serializingDecodable([String].self)
@@ -64,7 +64,7 @@ public extension JupiterApi {
     /// - Throws: An error if the request fails or the response is invalid.
     static func taggedTokens(for tag: String) async throws -> TaggedTokenListResponse {
         await JupiterApi.configure(mode: .lite, component: "tokens")
-        let url = await getQuoteURL(endpoint: "tagged/\(tag)")
+        let url = await getQuoteURL(endpoint: "/tagged/\(tag)")
         let response = try await AF.request(url, interceptor: retryPolicy)
             .validate()
             .serializingDecodable(TaggedTokenListResponse.self)
@@ -78,7 +78,7 @@ public extension JupiterApi {
     /// - Throws: An error if the network request fails or the response cannot be decoded.
     static func newTokens() async throws -> NewTokenListResponse {
         await JupiterApi.configure(mode: .lite, component: "tokens")
-        let url = await getQuoteURL(endpoint: "new")
+        let url = await getQuoteURL(endpoint: "/new")
         let response = try await AF.request(url, interceptor: retryPolicy)
             .validate()
             .serializingDecodable(NewTokenListResponse.self)
@@ -92,7 +92,7 @@ public extension JupiterApi {
     /// - Throws: An error if the network request fails or the response cannot be decoded.
     static func allTokens() async throws -> [TokenInfoResponse] {
         await JupiterApi.configure(mode: .lite, component: "tokens")
-        let url = await getQuoteURL(endpoint: "all")
+        let url = await getQuoteURL(endpoint: "/all")
         let response = try await AF.request(url, interceptor: retryPolicy)
             .validate()
             .serializingDecodable([TokenInfoResponse].self)

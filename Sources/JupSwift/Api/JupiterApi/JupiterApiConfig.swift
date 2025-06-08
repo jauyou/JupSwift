@@ -15,13 +15,25 @@ public actor JupiterApiConfig {
         case pro(apiKey: String)
         case lite
     }
+    
+    public enum Version: Sendable {
+        case v1
+        case v2
+        
+        var stringValue: String {
+            switch self {
+            case .v1: return "v1"
+            case .v2: return "v2"
+            }
+        }
+    }
 
     private var mode: Mode = .lite
     private var component: String = "quote"
-    private let version = "v1"
+    private var version: Version = Version.v1
 
     var url: String {
-        return baseDomain + "/" + component + "/" + version + "/"
+        return baseDomain + "/" + component + "/" + version.stringValue
     }
 
     var baseDomain: String {
@@ -44,6 +56,10 @@ public actor JupiterApiConfig {
 
     func configure(mode: Mode) {
         self.mode = mode
+    }
+    
+    func setVersion(version: Version) {
+        self.version = version
     }
 
     func setComponent(_ name: String) {
