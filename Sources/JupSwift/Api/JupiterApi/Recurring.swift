@@ -29,15 +29,20 @@ public extension JupiterApi {
         
         let headers = await getHeaders()
         
-        let response = try await AF.request(url,
-                                            method: .post,
-                                            parameters: requestBody,
-                                            encoder: JSONParameterEncoder.default,
-                                            headers: headers,
-                                            interceptor: retryPolicy)
+        let dataRequest = AF.request(url,
+                                     method: .post,
+                                     parameters: requestBody,
+                                     encoder: JSONParameterEncoder.default,
+                                     headers: headers,
+                                     interceptor: retryPolicy)
+        
+        debugLogRequest(dataRequest)
+        
+        let response = try await dataRequest
             .validate()
             .serializingDecodable(CreateRecurringOrderResponse.self)
             .value
+        
         return response
     }
     
@@ -58,16 +63,19 @@ public extension JupiterApi {
         let requestBody = RecurringExecuteRequest(requestId: requestId, signedTransaction: signedTransaction)
         
         let headers = await getHeaders()
-
-        let response = try await AF.request(url,
-                                            method: .post,
-                                            parameters: requestBody,
-                                            encoder: JSONParameterEncoder.default,
-                                            headers: headers,
-                                            interceptor: retryPolicy)
+        let dataRequest = AF.request(url,
+                                     method: .post,
+                                     parameters: requestBody,
+                                     encoder: JSONParameterEncoder.default,
+                                     headers: headers,
+                                     interceptor: retryPolicy)
+        debugLogRequest(dataRequest)
+        
+        let response = try await dataRequest
             .validate()
             .serializingDecodable(RecurringExecuteResponse.self)
             .value
+        
         return response
     }
     
@@ -90,6 +98,7 @@ public extension JupiterApi {
             .validate()
             .serializingDecodable(GetRecurringOrdersResponse.self)
             .value
+        
         return response
     }
     
@@ -112,15 +121,20 @@ public extension JupiterApi {
         
         let headers = await getHeaders()
 
-        let response = try await AF.request(url,
-                                            method: .post,
-                                            parameters: requestBody,
-                                            encoder: JSONParameterEncoder.default,
-                                            headers: headers,
-                                            interceptor: retryPolicy)
+        let dataRequest = AF.request(url,
+                                     method: .post,
+                                     parameters: requestBody,
+                                     encoder: JSONParameterEncoder.default,
+                                     headers: headers,
+                                     interceptor: retryPolicy)
+        
+        debugLogRequest(dataRequest)
+        
+        let response = try await dataRequest
             .validate()
             .serializingDecodable(CancelRecurringOrderResponse.self)
             .value
+        
         return response
     }
     
@@ -144,12 +158,16 @@ public extension JupiterApi {
         
         let headers = await getHeaders()
 
-        let response = try await AF.request(url,
-                                            method: .post,
-                                            parameters: requestBody,
-                                            encoder: JSONParameterEncoder.default,
-                                            headers: headers,
-                                            interceptor: retryPolicy)
+        let dataRequest = AF.request(url,
+                                     method: .post,
+                                     parameters: requestBody,
+                                     encoder: JSONParameterEncoder.default,
+                                     headers: headers,
+                                     interceptor: retryPolicy)
+        
+        debugLogRequest(dataRequest)
+        
+        let response = try await dataRequest
             .validate()
             .serializingDecodable(PriceDepositeResponse.self)
             .value
@@ -176,31 +194,19 @@ public extension JupiterApi {
         
         let headers = await getHeaders()
 
-        let response = try await AF.request(url,
-                                            method: .post,
-                                            parameters: requestBody,
-                                            encoder: JSONParameterEncoder.default,
-                                            headers: headers,
-                                            interceptor: retryPolicy)
+        let dataRequest = AF.request(url,
+                                     method: .post,
+                                     parameters: requestBody,
+                                     encoder: JSONParameterEncoder.default,
+                                     headers: headers,
+                                     interceptor: retryPolicy)
+        
+        debugLogRequest(dataRequest)
+        
+        let response = try await dataRequest
             .validate()
             .serializingDecodable(PriceWithdrawResponse.self)
             .value
-        
-//        let dataRequest = AF.request(url,
-//                                     method: .post,
-//                                     parameters: requestBody,
-//                                     encoder: JSONParameterEncoder.default,
-//                                     headers: headers,
-//                                     interceptor: retryPolicy)
-//        
-//        dataRequest.cURLDescription { description in
-//            print("📤 cURL Request:\n\(description)")
-//        }
-//        
-//        let response = try await dataRequest
-//            .validate()
-//            .serializingDecodable(PriceWithdrawResponse.self)
-//            .value
         
         return response
     }

@@ -31,7 +31,7 @@ struct RecurringTests {
         let inputMint = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
         let outputMint = "So11111111111111111111111111111111111111112"
         // call Jupiter API
-        let priceParams = PriceParams(depositAmount: 50000000, incrementUsdcValue: 10000000, interval: 86400)
+        let priceParams = PriceParams(depositAmount: 100000000, incrementUsdcValue: 10000000, interval: 86400)
         let result = try await JupiterApi.createRecurringOrder(inputMint: inputMint, outputMint: outputMint, params: .price(priceParams), user: "{YOUR_ADDRESS}")
         print("✅ CreateOrder response: \(result)")
         
