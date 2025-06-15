@@ -5,6 +5,18 @@
 //  Created by Zhao You on 25/5/25.
 //
 
+
+public typealias CancelTriggerOrderResponse = RequestTransactionResponse
+public typealias CreateRecurringOrderResponse = RequestTransactionResponse
+public typealias CancelRecurringOrderResponse = RequestTransactionResponse
+public typealias PriceDepositeResponse = RequestTransactionResponse
+public typealias PriceWithdrawResponse = RequestTransactionResponse
+
+public struct RequestTransactionResponse: Codable, Hashable, Sendable {
+    public let requestId: String
+    public let transaction: String
+}
+
 public struct SwapEvent: Codable, Hashable, Sendable {
     public let inputMint: String
     public let inputAmount: String

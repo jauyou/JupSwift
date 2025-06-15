@@ -76,8 +76,8 @@ public extension JupiterApi {
     /// - Parameters:
     ///   - maker: The wallet address that created the order.
     ///   - order: The unique order ID to be cancelled.
-    /// - Returns: A `CancelOrderResponse` containing the result of the cancellation.
-    static func cancelTriggerOrder(maker: String, order: String) async throws -> CancelOrderResponse {
+    /// - Returns: A `CancelTriggerOrderResponse` containing the result of the cancellation.
+    static func cancelTriggerOrder(maker: String, order: String) async throws -> CancelTriggerOrderResponse {
         await JupiterApi.configure(mode: .lite, component: "trigger")
         let url = await getQuoteURL(endpoint: "/cancelOrder")
         let requestBody = CancelOrder(maker: maker, order: order)
@@ -91,7 +91,7 @@ public extension JupiterApi {
                                             headers: headers,
                                             interceptor: retryPolicy)
             .validate()
-            .serializingDecodable(CancelOrderResponse.self)
+            .serializingDecodable(CancelTriggerOrderResponse.self)
             .value
         return response
     }
@@ -101,8 +101,8 @@ public extension JupiterApi {
     /// - Parameters:
     ///   - maker: The wallet address that created the orders.
     ///   - orders: An array of order IDs to be cancelled.
-    /// - Returns: A `CancelOrdersResponse` containing the result of the batch cancellation.
-    static func cancelTriggerOrders(maker: String, orders: [String]) async throws -> CancelOrdersResponse {
+    /// - Returns: A `CancelTriggerOrdersResponse` containing the result of the batch cancellation.
+    static func cancelTriggerOrders(maker: String, orders: [String]) async throws -> CancelTriggerOrdersResponse {
         await JupiterApi.configure(mode: .lite, component: "trigger")
         let url = await getQuoteURL(endpoint: "/cancelOrder")
         let requestBody = CancelOrders(maker: maker, orders: orders)
@@ -116,7 +116,7 @@ public extension JupiterApi {
                                             headers: headers,
                                             interceptor: retryPolicy)
             .validate()
-            .serializingDecodable(CancelOrdersResponse.self)
+            .serializingDecodable(CancelTriggerOrdersResponse.self)
             .value
         return response
     }

@@ -24,4 +24,20 @@ public enum JupiterApi {
     public static func getHeaders() async -> HTTPHeaders {
         return await JupiterApiConfig.shared.getHeaders()
     }
+    
+    static func debugLogRequest(_ request: DataRequest) {
+    #if DEBUG
+        request.cURLDescription { description in
+            print("📤 cURL Request:\n\(description)")
+        }
+
+        request.responseString { response in
+            if let body = response.value {
+                print("📥 Raw Response:\n\(body)")
+            } else {
+                print("📥 No response body")
+            }
+        }
+    #endif
+    }
 }
