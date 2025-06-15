@@ -5,12 +5,7 @@
 //  Created by Zhao You on 11/6/25.
 //
 
-public struct CancelOrderResponse: Codable, Hashable, Sendable {
-    public let requestId: String
-    public let transaction: String
-}
-
-public struct CancelOrdersResponse: Codable, Hashable, Sendable {
+public struct CancelTriggerOrdersResponse: Codable, Hashable, Sendable {
     public let requestId: String
     public let transactions: [String]
 }
