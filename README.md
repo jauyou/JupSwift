@@ -20,16 +20,26 @@ JupSwift can be integrated into your Xcode project using Swift Package Manager.
 
 ## Usage
 
-Below is a basic example of how to use JupSwift.
+The following is a basic usage example of JupSwift.
+At the moment, the wallet module supports a single mnemonic phrase, which can be either generated automatically or imported by the user.
+Upon creation of the mnemonic, the first keypair will be derived instantly.
 
 ### Initialize Wallet Environment
-1.  Generate Mnemonic or impore yours
+1.  Prepare Mnemonic
+
+- Generate Mnemonic into wallet
+
 ```swift
+let manager = WalletManager()
 let mnemonic = generateMnemonic() // or let mnemonic = { your own mnemonic }
-print("mnemonic = \(mnemonic)")
+do {
+    let entry = try await manager.addMnemonic(mnemonic)
+}  
 ```
 
-2.  Import Mnemonic into wallet
+- Import Mnemonic into wallet
+- 
+
 ```swift
 ///
 /// Adding a mnemonic will automatically generate the first private key
@@ -41,7 +51,23 @@ do {
 }   
 ```
 
-3.  Retrieve the first private key
+2.  Set current wallet
+   
+```swift
+do {
+    try await manager.setCurrentWalletAtIndex(1)
+    address = try await manager.getCurrentAddress()
+}
+```
+
+3.  Sign Transaction using current wallet
+
+```swift
+let unsignedTransaction = "Afoj44vDVRXmWN+2b0XJsCMEUgahMabbSNU+vBnJylWI6A2wncgrljIZOZ9sre83TCsurVREk/X5rJSSiq6hxAuAAQAIDC1DU+v8CS6zsH6P1YDxv34gJqfH4duQts70riDegwRWh7Uj+ncbLnnXrncZ0M9fcpfQPh1Y9fJm+wF6ZvdeXAeT62WWp4H7+l5+SX/26TIX4kW9/UIESJwJ9fRHF2a4BeBV0h/1+T5UibrxqsSxFjlJUiOoGJgKrcpTt5U2/pOyAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACMlyWPTiSJ8bs9ECkUjg2DC1oTmdr/EIQEjnvY2+n4Wawfg/25zlUN6V1VjNx5VGHM9DdKxojsE6mEACIKeNoGAwZGb+UhFzL/7K26csOb57yM5bvF9xJrLEObOkAAAAC0P/on9df2SnTAmx8pWHneSwmrNt/J3VFLMhqns4zl6Mb6evO+2606PWXzaqvJdDGxu+TC0vbg5HymAgNFL11hBHnVW/IxwG7udMVuzmgVB/2xst6j9I5RArHNola8E48G3fbh12Whk9nL4UbO63msHLSF7V9bN5E6jPWFfv8AqQctTjnSwEUMprS9ERx1Vf9YfO/78A64br56TcDYlZ4IBwcABQLAXBUABwAJA/ThBQAAAAAABAIAAwwCAAAA8P4UBgAAAAAKBQMAFQsECZPxe2T0hK52/gUGAAIACQQLAQEKGAsAAwIKCQEIChEUDQADAgwODxALExMSBiPlF8uXeuOtKgEAAAAZZAABAOH1BQAAAABm+LQAAAAAADMAAAsDAwAAAQkB1oUQRIHodQ7RqM53G2HBODrXHK0Mt23syD9oedgHJVAFuL2gvqEFOLs1vBY="
+let signedTransaction = try await manager.signTransaction(base64Transaction: unsignedTransaction)
+```
+
+4.  Retrieve the first private key
 ```swift
 do {
     var privateKeyEntry = try await manager.deriveAndAddPrivateKeyAt(index: 0)
@@ -98,7 +124,33 @@ JupiterApi.execute(signedTransaction: signedTransactionBase64, requestId: orderR
 }
 ```
 
-6.  The easier way to get order and execute order 
+6.  The easier way to get order and execute order
+
+- using wallet
+
+
+```swift
+let manager = WalletManager()
+        try await manager.resetWallet()
+        _ = try await manager.addMnemonic("YOUR_MNEMONIC_HERE")
+        let inputMint = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" // USDC
+        let outputMint = "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN" // JUP
+        let amount = "22763399" // minimal（lamports）
+
+        do {
+            _ = try await JupiterApi.ultraSwap(
+                inputMint: inputMint,
+                outputMint: outputMint,
+                amount: amount
+            )
+        } catch {
+            print("❌ UltraSwap failed with error: \(error)")
+            throw error
+        }
+```
+
+- using private key
+
 ```swift
 JupiterApi.ultraSwap(inputMint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", outputMint: "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN", amoumt: "22763399", taker: "YOUR_SOLANA_ADDRESS_HERE", privateKey: "YOUR_PRIVATE_KEY_HERE") { result in
     switch result {
@@ -110,6 +162,12 @@ JupiterApi.ultraSwap(inputMint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", 
     }
 }
 ```
+
+Check out the test cases for more example usages.
+
+## Full Documentation 
+
+https://jauyou.github.io/JupSwift/documentation/jupswift/
 
 ## Dependencies
 ```
