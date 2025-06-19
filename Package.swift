@@ -18,6 +18,7 @@ let package = Package(
             targets: ["JupSwift"]),
     ],
     dependencies: [
+            .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.4.3"),
             .package(url: "https://github.com/attaswift/BigInt.git", from: "5.3.0"),
             .package(url: "https://github.com/jauyou/Clibsodium.git", from: "1.0.0"),
             .package(url: "https://github.com/Alamofire/Alamofire.git", from: "5.10.2")
