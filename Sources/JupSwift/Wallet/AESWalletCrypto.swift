@@ -30,6 +30,12 @@ actor AESWalletCrypto {
     private let keyAlias = "ag.jup.wallet.secureEnclaveKey"
     static let shared = AESWalletCrypto()
     private let context = LAContext()
+    
+    /// Check if fallback storage is enabled via environment variable
+    /// Set WALLET_USE_FALLBACK=1 to use file-based storage instead of Keychain
+    private static var useFallbackStorage: Bool {
+        ProcessInfo.processInfo.environment["WALLET_USE_FALLBACK"] == "1"
+    }
 
     private init() {
         if #available(iOS 13.0, *) {
@@ -101,17 +107,22 @@ actor AESWalletCrypto {
     /// - Returns: A `SymmetricKey` used for encrypting/decrypting wallet data.
     /// - Throws: An error if key generation or loading fails.
     private func loadOrGenerateKey() throws -> SymmetricKey {
+        // Use fallback file storage if enabled (e.g., in test environment)
+        if Self.useFallbackStorage {
+            return try loadOrGenerateKeyFromLocal()
+        }
+        
+        // Try Keychain first, fallback to file if Keychain unavailable
         do {
             let key = try getKeyFromSecureEnclave()
             return key
         } catch {
-            print("Failed to get key: \(error)")
-            let newKey = SymmetricKey(size: .bits256)
-            try saveKeyToSecureEnclave(newKey)
-            return newKey
+            print("⚠️ Failed to access Keychain: \(error)")
+            print("   Falling back to file-based key storage")
+            return try loadOrGenerateKeyFromLocal()
         }
     }
-
+    
     /// Saves the given symmetric encryption key securely into the Secure Enclave or keychain.
     ///
     /// - Parameter key: The `SymmetricKey` to be securely stored.
