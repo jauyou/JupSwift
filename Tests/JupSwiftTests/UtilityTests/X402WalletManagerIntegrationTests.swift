@@ -135,7 +135,7 @@ final class X402WalletManagerIntegrationTests: IntegrationTestBase {
             print("   ❌ Payer token account doesn't exist or has no balance")
             print("   Please fund the wallet with USDC first:")
             print("   1. Get devnet SOL: solana airdrop 1 \(payerAddress) --url devnet")
-            print("   2. Get devnet USDC: npm run usdc:client")
+            print("   2. Get devnet USDC: https://spl-token-faucet.com/?token-name=USDC")
             throw XCTSkip("Payer account not funded: \(error)")
         }
         
@@ -771,7 +771,7 @@ final class X402WalletManagerIntegrationTests: IntegrationTestBase {
             print("   ⚠️  Token account not found or no balance")
             print("   Please fund the wallet with USDC first:")
             print("   1. Get devnet SOL: solana airdrop 1 \(payerAddress) --url devnet")
-            print("   2. Get devnet USDC: cd x402-solana-examples/pay-in-usdc && npm run usdc:client")
+            print("   2. Get devnet USDC: https://spl-token-faucet.com/?token-name=USDC")
             throw XCTSkip("Payer account not funded: \(error)")
         }
         
