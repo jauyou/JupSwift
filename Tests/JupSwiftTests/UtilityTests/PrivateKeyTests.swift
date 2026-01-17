@@ -1,5 +1,5 @@
 //
-//  PrivateKey.swift
+//  PrivateKeyTests.swift
 //  JupSwift
 //
 //  Created by Zhao You on 24/5/25.

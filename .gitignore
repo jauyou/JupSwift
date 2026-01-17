@@ -61,3 +61,8 @@ fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
 .DS_Store
+
+# Ignore all .md files in root except README.md
+/*.md
+!/README.md
+.cursorrules

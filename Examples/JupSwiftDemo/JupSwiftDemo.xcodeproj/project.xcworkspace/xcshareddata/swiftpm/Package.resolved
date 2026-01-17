@@ -1,0 +1,42 @@
+{
+  "originHash" : "5320d502b1107f40a86b95576135f46725381aa409f2966ec7c3047859a92cfa",
+  "pins" : [
+    {
+      "identity" : "alamofire",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Alamofire/Alamofire.git",
+      "state" : {
+        "revision" : "513364f870f6bfc468f9d2ff0a95caccc10044c5",
+        "version" : "5.10.2"
+      }
+    },
+    {
+      "identity" : "bigint",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/attaswift/BigInt.git",
+      "state" : {
+        "revision" : "e07e00fa1fd435143a2dcf8b7eec9a7710b2fdfe",
+        "version" : "5.7.0"
+      }
+    },
+    {
+      "identity" : "clibsodium",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/jauyou/Clibsodium.git",
+      "state" : {
+        "revision" : "1f40d6616cb8040f2fe9f613d57f1674d92bfe2c",
+        "version" : "1.0.0"
+      }
+    },
+    {
+      "identity" : "jupswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/jauyou/JupSwift.git",
+      "state" : {
+        "branch" : "feat-support-x402-payment-protocol",
+        "revision" : "2e7fb8d329e514317d147045c8b60e73370bcf2f"
+      }
+    }
+  ],
+  "version" : 3
+}
