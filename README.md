@@ -77,9 +77,19 @@ do {
 ```
 
 ### Use Jupiter API
-1.  get account balance
+
+#### Configure API Key (Required)
+
+You must provide an API key from [portal.jup.ag](https://portal.jup.ag) and configure it before making API calls.
+
 ```swift
-let account = { target address }
+// Configure globally at the start of your app
+await JupiterApi.setApiKey("YOUR_API_KEY")
+```
+
+#### Get account balance
+```swift
+let account = "{target address}"
 let result = try await JupiterApi.balances(account: account)
 ```
 
@@ -113,7 +123,7 @@ let routers = try await JupiterApi.routers()
 5.  execute order
 ```swift
 let orderResponse = // from responese of order api
-let signedTransactionBase64 = signTransaction(base64Transaction: transaction, privateKey: privateKey)
+let signedTransactionBase64 = try signTransaction(base64Transaction: transaction, privateKey: privateKey)
 JupiterApi.execute(signedTransaction: signedTransactionBase64, requestId: orderResponse.requestId) { result in
     switch result {
         case .success(let executeResponse):

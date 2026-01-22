@@ -10,6 +10,10 @@ import Testing
 
 
 struct UltraTests {
+    init() async {
+        await ApiTestHelper.configure()
+    }
+
     @Test
     func testBalancesWithValidAccount() async throws {
         let account = "ULNw3m7kxvPP8RHXAwYRTW5yQos7RWB4nmVBsiCix6V"

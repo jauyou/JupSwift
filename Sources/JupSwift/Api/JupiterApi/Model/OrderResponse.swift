@@ -17,12 +17,10 @@ public struct SwapInfo: Codable, Hashable, Sendable {
     public let outputMint: String
     public let inAmount: String
     public let outAmount: String
-    public let feeAmount: String
-    public let feeMint: String
 }
 
 public struct PlatformFee: Codable, Hashable, Sendable {
-    public let amount: String
+    public let amount: String?
     public let feeBps: Int
 }
 

@@ -9,7 +9,7 @@ import Alamofire
 import Foundation
 
 public extension JupiterApi {
-    /// Creates a recurring order using the Jupiter Lite API.
+    /// Creates a recurring order using the Jupiter API.
     ///
     /// This function sends a POST request to the `/createOrder` endpoint
     /// with the given mints, user public key, and recurring order parameters.
@@ -23,20 +23,20 @@ public extension JupiterApi {
     /// - Returns: A `CreateRecurringOrderResponse` containing order details from the API.
     /// - Throws: An error if the request fails or the response cannot be decoded.
     static func createRecurringOrder(inputMint: String, outputMint: String, params: RecurringParams, user: String) async throws -> CreateRecurringOrderResponse {
-        await JupiterApi.configure(mode: .lite, component: "recurring")
+        await JupiterApi.configure(component: "recurring")
         let url = await getQuoteURL(endpoint: "/createOrder")
         let requestBody = CreateRecurringOrderRequest(user: user, inputMint: inputMint, outputMint: outputMint, params: params)
         
         let headers = await getHeaders()
         
-        let dataRequest = AF.request(url,
+        let dataRequest = session.request(url,
                                      method: .post,
                                      parameters: requestBody,
                                      encoder: JSONParameterEncoder.default,
                                      headers: headers,
                                      interceptor: retryPolicy)
         
-        debugLogRequest(dataRequest)
+        await debugLogRequest(dataRequest)
         
         let response = try await dataRequest
             .validate()
@@ -46,7 +46,7 @@ public extension JupiterApi {
         return response
     }
     
-    /// Executes a signed recurring order transaction via the Jupiter Lite API.
+    /// Executes a signed recurring order transaction via the Jupiter API.
     ///
     /// This function submits a signed transaction for a recurring order execution
     /// to the `/execute` endpoint, using the provided request ID.
@@ -58,18 +58,18 @@ public extension JupiterApi {
     /// - Returns: A `RecurringExecuteResponse` with the result of the execution.
     /// - Throws: An error if the network request fails or the response cannot be parsed.
     static func recurringExecute(requestId: String, signedTransaction: String) async throws -> RecurringExecuteResponse {
-        await JupiterApi.configure(mode: .lite, component: "recurring")
+        await JupiterApi.configure(component: "recurring")
         let url = await getQuoteURL(endpoint: "/execute")
         let requestBody = RecurringExecuteRequest(requestId: requestId, signedTransaction: signedTransaction)
         
         let headers = await getHeaders()
-        let dataRequest = AF.request(url,
+        let dataRequest = session.request(url,
                                      method: .post,
                                      parameters: requestBody,
                                      encoder: JSONParameterEncoder.default,
                                      headers: headers,
                                      interceptor: retryPolicy)
-        debugLogRequest(dataRequest)
+        await debugLogRequest(dataRequest)
         
         let response = try await dataRequest
             .validate()
@@ -79,7 +79,7 @@ public extension JupiterApi {
         return response
     }
     
-    /// Fetches recurring orders for a given user account from the Jupiter Lite API.
+    /// Fetches recurring orders for a given user account from the Jupiter API.
     ///
     /// This function queries the `/getRecurringOrders` endpoint with the user's public key,
     /// filtered by order status and recurring type (time-based or price-based).
@@ -92,9 +92,12 @@ public extension JupiterApi {
     /// - Returns: A `GetRecurringOrdersResponse` containing a list of matching recurring orders.
     /// - Throws: An error if the request fails or the response cannot be decoded.
     static func getRecurringOrders(account: String, orderStatus: OrderStatus, recurringType: RecurringType) async throws -> GetRecurringOrdersResponse {
-        await JupiterApi.configure(mode: .lite, component: "recurring")
+        await JupiterApi.configure(component: "recurring")
         let url = await getQuoteURL(endpoint: "/getRecurringOrders?user=\(account)&orderStatus=\(orderStatus)&recurringType=\(recurringType)&includeFailedTx=true")
-        let response = try await AF.request(url, interceptor: retryPolicy)
+        let headers = await getHeaders()
+        let dataRequest = session.request(url, headers: headers, interceptor: retryPolicy)
+        await debugLogRequest(dataRequest)
+        let response = try await dataRequest
             .validate()
             .serializingDecodable(GetRecurringOrdersResponse.self)
             .value
@@ -102,7 +105,7 @@ public extension JupiterApi {
         return response
     }
     
-    /// Cancels an existing recurring order using the Jupiter Lite API.
+    /// Cancels an existing recurring order using the Jupiter API.
     ///
     /// This function sends a POST request to the `/cancelOrder` endpoint to cancel a specific recurring order.
     /// It requires the order ID, user public key, and the recurring type (e.g., "time" or "price").
@@ -115,20 +118,20 @@ public extension JupiterApi {
     /// - Returns: A `CancelRecurringOrderResponse` indicating the result of the cancellation.
     /// - Throws: An error if the request fails or the response cannot be decoded.
     static func cancelRecurringOrder(order: String, user: String, recurringType: String) async throws -> CancelRecurringOrderResponse {
-        await JupiterApi.configure(mode: .lite, component: "recurring")
+        await JupiterApi.configure(component: "recurring")
         let url = await getQuoteURL(endpoint: "/cancelOrder")
         let requestBody = CancelRecurringOrderRequest(order: order, user: user, recurringType: recurringType)
         
         let headers = await getHeaders()
 
-        let dataRequest = AF.request(url,
+        let dataRequest = session.request(url,
                                      method: .post,
                                      parameters: requestBody,
                                      encoder: JSONParameterEncoder.default,
                                      headers: headers,
                                      interceptor: retryPolicy)
         
-        debugLogRequest(dataRequest)
+        await debugLogRequest(dataRequest)
         
         let response = try await dataRequest
             .validate()
@@ -152,20 +155,20 @@ public extension JupiterApi {
     /// - Returns: A `PriceDepositeResponse` confirming the deposit was processed.
     /// - Throws: An error if the request fails or the response cannot be decoded.
     static func priceDeposit(order: String, user: String, amount: UInt64) async throws -> PriceDepositeResponse {
-        await JupiterApi.configure(mode: .lite, component: "recurring")
+        await JupiterApi.configure(component: "recurring")
         let url = await getQuoteURL(endpoint: "/priceDeposit")
         let requestBody = PriceDepositeRequest(order: order, user: user, amount: amount)
         
         let headers = await getHeaders()
 
-        let dataRequest = AF.request(url,
+        let dataRequest = session.request(url,
                                      method: .post,
                                      parameters: requestBody,
                                      encoder: JSONParameterEncoder.default,
                                      headers: headers,
                                      interceptor: retryPolicy)
         
-        debugLogRequest(dataRequest)
+        await debugLogRequest(dataRequest)
         
         let response = try await dataRequest
             .validate()
@@ -188,20 +191,20 @@ public extension JupiterApi {
     /// - Returns: A `PriceWithdrawResponse` object containing the result of the withdrawal.
     /// - Throws: An error if the request fails or the response cannot be decoded.
     static func priceWithdraw(order: String, user: String, amount: UInt64) async throws -> PriceWithdrawResponse {
-        await JupiterApi.configure(mode: .lite, component: "recurring")
+        await JupiterApi.configure(component: "recurring")
         let url = await getQuoteURL(endpoint: "/priceWithdraw")
         let requestBody = PriceWithdrawRequest(order: order, user: user, amount: amount)
         
         let headers = await getHeaders()
 
-        let dataRequest = AF.request(url,
+        let dataRequest = session.request(url,
                                      method: .post,
                                      parameters: requestBody,
                                      encoder: JSONParameterEncoder.default,
                                      headers: headers,
                                      interceptor: retryPolicy)
         
-        debugLogRequest(dataRequest)
+        await debugLogRequest(dataRequest)
         
         let response = try await dataRequest
             .validate()

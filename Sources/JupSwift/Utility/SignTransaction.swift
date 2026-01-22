@@ -8,20 +8,29 @@
 import Foundation
 import Clibsodium
 
-public func signTransaction(base64Transaction: String, privateKey: [UInt8]) -> String {
+public func signTransaction(base64Transaction: String, privateKey: [UInt8]) throws -> String {
+    guard !base64Transaction.isEmpty else {
+        throw JupiterError.invalidTransaction("Transaction cannot be empty")
+    }
+
     guard sodium_init() >= 0 else {
-        fatalError("Libsodium init fail")
+        throw JupiterError.libsodiumInitFailed
     }
 
     // ✅ 1. resolve transaction data
     guard let fullTransactionData = Data(base64Encoded: base64Transaction) else {
-        fatalError("Can't resolve base64")
+        throw JupiterError.invalidTransaction("Invalid base64 encoding")
     }
     let fullTransactionBytes = [UInt8](fullTransactionData)
 
     let signatureCount = Int(fullTransactionBytes[0])
     let signatureLength = 64
     let messageStartIndex = 1 + signatureCount * signatureLength
+    
+    // Bounds check
+    guard messageStartIndex <= fullTransactionBytes.count else {
+        throw JupiterError.invalidTransaction("Transaction data too short")
+    }
 
     // ✅ 2. get message
     let message = Array(fullTransactionBytes[messageStartIndex...])
@@ -39,7 +48,7 @@ public func signTransaction(base64Transaction: String, privateKey: [UInt8]) -> S
     )
 
     guard result == 0 else {
-        fatalError("sign fail")
+        throw JupiterError.signingFailed("Crypto sign detached failed")
     }
 
     // ✅ 4. Manually reconstruct into a signed transaction
@@ -51,7 +60,9 @@ public func signTransaction(base64Transaction: String, privateKey: [UInt8]) -> S
     return signedTransactionBase64
 }
 
-public func signTransaction(base64Transaction: String, privateKey: String) -> String {
-    guard let privateKey = Base58.decode(privateKey) else { return "" }
-    return signTransaction(base64Transaction: base64Transaction, privateKey: privateKey)
+public func signTransaction(base64Transaction: String, privateKey: String) throws -> String {
+    guard let privateKeyBytes = Base58.decode(privateKey) else {
+        throw JupiterError.invalidPrivateKey
+    }
+    return try signTransaction(base64Transaction: base64Transaction, privateKey: privateKeyBytes)
 }

@@ -383,7 +383,7 @@ public actor WalletManager {
     /// - Returns: A signed transaction encoded in base64 format.
     public func signTransaction(base64Transaction: String) async throws -> String {
         let privateKey = try await getCurrentPrivateKey()
-        return JupSwift.signTransaction(base64Transaction: base64Transaction, privateKey: privateKey)
+        return try JupSwift.signTransaction(base64Transaction: base64Transaction, privateKey: privateKey)
     }
     
     /// Automatically generates a new mnemonic phrase within the wallet and adds it.

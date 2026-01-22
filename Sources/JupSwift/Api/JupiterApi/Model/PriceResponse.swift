@@ -7,45 +7,38 @@
 
 import Foundation
 
-public struct PriceResponse: Codable, Hashable, Sendable  {
-    let data: [String: PriceData]
-    let timeTaken: Double
+/// Represents the response from the Jupiter Price API.
+/// The API returns a dictionary mapping token mint addresses to their price data.
+public struct PriceResponse: Codable, Hashable, Sendable {
+    /// A dictionary containing price data, keyed by the token mint address.
+    public let data: [String: PriceData]
+    
+    /// The time taken for the request (Deprecated/Not available in V2 direct response).
+    public let timeTaken: Double?
+
+    public init(data: [String: PriceData], timeTaken: Double? = nil) {
+        self.data = data
+        self.timeTaken = timeTaken
+    }
+
+    // Custom decoding to handle the dynamic key dictionary structure
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        self.data = try container.decode([String: PriceData].self)
+        self.timeTaken = nil
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(data)
+    }
 }
 
-public struct PriceData: Codable, Hashable, Sendable  {
-    let id: String
-    let type: String
-    let price: String
-    let extraInfo: ExtraInfo?
-}
-
-public struct ExtraInfo: Codable, Hashable, Sendable  {
-    let lastSwappedPrice: LastSwappedPrice
-    let quotedPrice: QuotedPrice
-    let confidenceLevel: String
-    let depth: Depth
-}
-
-public struct LastSwappedPrice: Codable, Hashable, Sendable  {
-    let lastJupiterSellAt: Int
-    let lastJupiterSellPrice: String
-    let lastJupiterBuyAt: Int
-    let lastJupiterBuyPrice: String
-}
-
-public struct QuotedPrice: Codable, Hashable, Sendable  {
-    let buyPrice: String
-    let buyAt: Int
-    let sellPrice: String
-    let sellAt: Int
-}
-
-public struct Depth: Codable, Hashable, Sendable  {
-    let buyPriceImpactRatio: PriceImpactRatio
-    let sellPriceImpactRatio: PriceImpactRatio
-}
-
-public struct PriceImpactRatio: Codable, Hashable, Sendable  {
-    let depth: [String: Double]
-    let timestamp: Int
+public struct PriceData: Codable, Hashable, Sendable {
+    public let usdPrice: Double
+    public let decimals: Int
+    public let createdAt: String?
+    public let liquidity: Double?
+    public let blockId: Int?
+    public let priceChange24h: Double?
 }
