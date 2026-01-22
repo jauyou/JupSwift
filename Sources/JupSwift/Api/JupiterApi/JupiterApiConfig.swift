@@ -11,51 +11,45 @@ import Alamofire
 public actor JupiterApiConfig {
     static let shared = JupiterApiConfig()
 
-    public enum Mode: Sendable {
-        case pro(apiKey: String)
-        case lite
-    }
-    
     public enum Version: Sendable {
         case v1
         case v2
+        case v3
         
         var stringValue: String {
             switch self {
             case .v1: return "v1"
             case .v2: return "v2"
+            case .v3: return "v3"
             }
         }
     }
 
-    private var mode: Mode = .lite
+    private var apiKey: String?
     private var component: String = "quote"
     private var version: Version = Version.v1
+    var isDebugMode: Bool = false
 
     var url: String {
         return baseDomain + "/" + component + "/" + version.stringValue
     }
 
     var baseDomain: String {
-        switch mode {
-        case .pro:
-            return "https://api.jup.ag"
-        case .lite:
-            return "https://lite-api.jup.ag"
-        }
+        return "https://api.jup.ag"
     }
 
-    var apiKey: String? {
-        switch mode {
-        case .pro(let key):
-            return key
-        case .lite:
-            return nil
-        }
+    func getUrl(version: Version? = nil, component: String? = nil) -> String {
+        let v = version ?? self.version
+        let c = component ?? self.component
+        return baseDomain + "/" + c + "/" + v.stringValue
     }
 
-    func configure(mode: Mode) {
-        self.mode = mode
+    func setApiKey(_ key: String) {
+        self.apiKey = key
+    }
+    
+    func setDebugMode(_ enabled: Bool) {
+        self.isDebugMode = enabled
     }
     
     func setVersion(version: Version) {

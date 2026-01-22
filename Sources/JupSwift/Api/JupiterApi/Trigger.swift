@@ -20,7 +20,7 @@ public extension JupiterApi {
     ///   - payer: The wallet address paying for the transaction.
     /// - Returns: A `CreateTriggerOrderResponse` containing the order details.
     static func createOrder(inputMint: String, outputMint: String, makingAmount: String, takingAmount: String, payer: String) async throws -> CreateTriggerOrderResponse {
-        await JupiterApi.configure(mode: .lite, component: "trigger")
+        await JupiterApi.configure(component: "trigger")
         let url = await getQuoteURL(endpoint: "/createOrder")
         let params: TriggerParams = TriggerParams(makingAmount: makingAmount, takingAmount: takingAmount)
         var requestBody = CreateTriggerOrderRequest(inputMint: inputMint, outputMint: outputMint, maker: payer, payer: payer, params: params)
@@ -34,12 +34,14 @@ public extension JupiterApi {
         
         let headers = await getHeaders()
 
-        let response = try await AF.request(url,
+        let dataRequest = AF.request(url,
                                             method: .post,
                                             parameters: requestBody,
                                             encoder: JSONParameterEncoder.default,
                                             headers: headers,
                                             interceptor: retryPolicy)
+        await debugLogRequest(dataRequest)
+        let response = try await dataRequest
             .validate()
             .serializingDecodable(CreateTriggerOrderResponse.self)
             .value
@@ -53,18 +55,20 @@ public extension JupiterApi {
     ///   - signedTransaction: The base64-encoded signed transaction to be executed.
     /// - Returns: A `TriggerExecuteResponse` containing the execution result.
     static func triggerExecute(requestId: String, signedTransaction: String) async throws -> TriggerExecuteResponse {
-        await JupiterApi.configure(mode: .lite, component: "trigger")
+        await JupiterApi.configure(component: "trigger")
         let url = await getQuoteURL(endpoint: "/execute")
         let requestBody = TriggerExecuteRequest(requestId: requestId, signedTransaction: signedTransaction)
         
         let headers = await getHeaders()
 
-        let response = try await AF.request(url,
+        let dataRequest = AF.request(url,
                                             method: .post,
                                             parameters: requestBody,
                                             encoder: JSONParameterEncoder.default,
                                             headers: headers,
                                             interceptor: retryPolicy)
+        await debugLogRequest(dataRequest)
+        let response = try await dataRequest
             .validate()
             .serializingDecodable(TriggerExecuteResponse.self)
             .value
@@ -78,18 +82,20 @@ public extension JupiterApi {
     ///   - order: The unique order ID to be cancelled.
     /// - Returns: A `CancelTriggerOrderResponse` containing the result of the cancellation.
     static func cancelTriggerOrder(maker: String, order: String) async throws -> CancelTriggerOrderResponse {
-        await JupiterApi.configure(mode: .lite, component: "trigger")
+        await JupiterApi.configure(component: "trigger")
         let url = await getQuoteURL(endpoint: "/cancelOrder")
         let requestBody = CancelOrder(maker: maker, order: order)
         
         let headers = await getHeaders()
 
-        let response = try await AF.request(url,
+        let dataRequest = AF.request(url,
                                             method: .post,
                                             parameters: requestBody,
                                             encoder: JSONParameterEncoder.default,
                                             headers: headers,
                                             interceptor: retryPolicy)
+        await debugLogRequest(dataRequest)
+        let response = try await dataRequest
             .validate()
             .serializingDecodable(CancelTriggerOrderResponse.self)
             .value
@@ -103,18 +109,20 @@ public extension JupiterApi {
     ///   - orders: An array of order IDs to be cancelled.
     /// - Returns: A `CancelTriggerOrdersResponse` containing the result of the batch cancellation.
     static func cancelTriggerOrders(maker: String, orders: [String]) async throws -> CancelTriggerOrdersResponse {
-        await JupiterApi.configure(mode: .lite, component: "trigger")
+        await JupiterApi.configure(component: "trigger")
         let url = await getQuoteURL(endpoint: "/cancelOrder")
         let requestBody = CancelOrders(maker: maker, orders: orders)
         
         let headers = await getHeaders()
 
-        let response = try await AF.request(url,
+        let dataRequest = AF.request(url,
                                             method: .post,
                                             parameters: requestBody,
                                             encoder: JSONParameterEncoder.default,
                                             headers: headers,
                                             interceptor: retryPolicy)
+        await debugLogRequest(dataRequest)
+        let response = try await dataRequest
             .validate()
             .serializingDecodable(CancelTriggerOrdersResponse.self)
             .value
@@ -138,9 +146,12 @@ public extension JupiterApi {
     }
     
     static func getTriggerOrders(user: String, orderStatus: String) async throws -> GetTriggerOrdersResponse {
-        await JupiterApi.configure(mode: .lite, component: "trigger")
+        await JupiterApi.configure(component: "trigger")
         let url = await getQuoteURL(endpoint: "/getTriggerOrders?user=\(user)&orderStatus=\(orderStatus)")
-        let response = try await AF.request(url, interceptor: retryPolicy)
+        let headers = await getHeaders()
+        let dataRequest = AF.request(url, headers: headers, interceptor: retryPolicy)
+        await debugLogRequest(dataRequest)
+        let response = try await dataRequest
             .validate()
             .serializingDecodable(GetTriggerOrdersResponse.self)
             .value

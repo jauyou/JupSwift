@@ -195,8 +195,8 @@ final class TransferIntegrationTests: IntegrationTestBase {
         print("\n🔑 Verify Token Account derivation")
         
         // Expected Token Account addresses (obtained from real transaction)
-        let expectedSenderTokenAccount = "HifavgGpm7NbKkWx5JmGnvG1qJWf8zaGYenFHdaV92Jg"
-        let expectedReceiverTokenAccount = "Ghw5swM1Np4QbAGwXzgz8mAyh6q5Cb2Q51L24VV64DNP"
+        let expectedSenderTokenAccount = "5tupNS1d66vYzUKFyP3DQ5oG6S9t11ob7fhuh7oc22XH"
+        let expectedReceiverTokenAccount = "ANVQMUvfjwJuwC8ML2bcqeqcwSZRFKPcera9T25KxU4Y"
         
         // Verify derived addresses are correct
         XCTAssertEqual(

@@ -9,7 +9,15 @@ import Testing
 @testable import JupSwift
 
 struct TriggerTests {
-    
+
+    init() async {
+
+        await ApiTestHelper.configure()
+
+    }
+
+
+
     @Test
     func testCreateOrderAndExecute() async throws {
         let privateKey = "{YOUR_PRIVATE_KEY}"
@@ -18,7 +26,7 @@ struct TriggerTests {
         // call Jupiter API
         let result = try await JupiterApi.createOrder(inputMint: inputMint, outputMint: outputMint, makingAmount: "90000000", takingAmount: "200000000", payer: "{YOUR ADDRESS}")
         print("✅ CreateOrder response: \(result)")
-        let signedTransaction = signTransaction(base64Transaction: result.transaction, privateKey: privateKey)
+        let signedTransaction = try signTransaction(base64Transaction: result.transaction, privateKey: privateKey)
         
         let executeResult = try await JupiterApi.triggerExecute(requestId: result.requestId, signedTransaction: signedTransaction)
         print("✅ Execute response: \(executeResult)")
@@ -31,7 +39,7 @@ struct TriggerTests {
         let order = "{YOUR ORDERS}"
         let result = try await JupiterApi.cancelTriggerOrder(maker: maker, order: order)
         print("✅ CancelOrder response: \(result)")
-        let signedTransaction = signTransaction(base64Transaction: result.transaction, privateKey: privateKey)
+        let signedTransaction = try signTransaction(base64Transaction: result.transaction, privateKey: privateKey)
         
         let executeResult = try await JupiterApi.triggerExecute(requestId: result.requestId, signedTransaction: signedTransaction)
         print("✅ Execute response: \(executeResult)")
@@ -46,7 +54,7 @@ struct TriggerTests {
         print("✅ CancelOrder response: \(result)")
         for base64Transaction in result.transactions {
             do {
-                let signedTransaction = signTransaction(base64Transaction: base64Transaction, privateKey: privateKey)
+                let signedTransaction = try signTransaction(base64Transaction: base64Transaction, privateKey: privateKey)
                 
                 let executeResult = try await JupiterApi.triggerExecute(
                     requestId: result.requestId,

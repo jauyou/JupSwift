@@ -9,7 +9,15 @@ import Testing
 @testable import JupSwift
 
 struct RecurringTests {
-    
+
+    init() async {
+
+        await ApiTestHelper.configure()
+
+    }
+
+
+
     @Test
     func testCreateRecurringOrderByTimeAndExecute() async throws {
         let privateKey = "{YOUR_PRIVATE_KEY}"
@@ -20,7 +28,7 @@ struct RecurringTests {
         let result = try await JupiterApi.createRecurringOrder(inputMint: inputMint, outputMint: outputMint, params: .time(timeParams), user: "{YOUR_ADDRESS}")
         print("✅ CreateOrder response: \(result)")
         
-        let signedTransaction = signTransaction(base64Transaction: result.transaction, privateKey: privateKey)
+        let signedTransaction = try signTransaction(base64Transaction: result.transaction, privateKey: privateKey)
         let executeResult = try await JupiterApi.recurringExecute(requestId: result.requestId, signedTransaction: signedTransaction)
         print("✅ Execute response: \(executeResult)")
     }
@@ -35,7 +43,7 @@ struct RecurringTests {
         let result = try await JupiterApi.createRecurringOrder(inputMint: inputMint, outputMint: outputMint, params: .price(priceParams), user: "{YOUR_ADDRESS}")
         print("✅ CreateOrder response: \(result)")
         
-        let signedTransaction = signTransaction(base64Transaction: result.transaction, privateKey: privateKey)
+        let signedTransaction = try signTransaction(base64Transaction: result.transaction, privateKey: privateKey)
         let executeResult = try await JupiterApi.recurringExecute(requestId: result.requestId, signedTransaction: signedTransaction)
         print("✅ Execute response: \(executeResult)")
     }

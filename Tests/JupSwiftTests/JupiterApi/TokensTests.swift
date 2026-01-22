@@ -10,6 +10,10 @@ import Testing
 
 
 struct TokensTests {
+    init() async {
+        await ApiTestHelper.configure()
+    }
+
     @Test
     func testToken() async throws {
         let token = "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN"
@@ -23,7 +27,7 @@ struct TokensTests {
         print("✅ Token response: \(result)")
     }
     
-    @Test
+    @Test(.disabled("Disabled by Tokens API V1 (Deprecated)"))
     func testMarket() async throws {
         let market = "BVRbyLjjfSBcoyiYFuxbgKYnWuiFaF9CSXEa5vdSZ9Hh"
         
@@ -37,7 +41,7 @@ struct TokensTests {
         print("✅ Market response: \(result)")
     }
     
-    @Test
+    @Test(.disabled("Disabled by Tokens API V1 (Deprecated)"))
     func testTradable() async throws {
         // call Jupiter API
         let result = try await JupiterApi.tradableTokens()
@@ -45,7 +49,7 @@ struct TokensTests {
         #expect(result.count > 8888, "Expected length to be greater than 8888")
     }
     
-    @Test
+    @Test(.disabled("Disabled by Tokens API V1 (Deprecated)"))
     func testTaggedTokens() async throws {
         // call Jupiter API
         let tag = "lst"
@@ -54,7 +58,7 @@ struct TokensTests {
         #expect(result.count > 10, "Expected length to be greater than 10")
     }
     
-    @Test
+    @Test(.disabled("Disabled by Tokens API V1 (Deprecated)"))
     func testNewTokens() async throws {
         // call Jupiter API
         let result = try await JupiterApi.newTokens()
@@ -62,7 +66,7 @@ struct TokensTests {
         #expect(result.count > 10, "Expected length to be greater than 8888")
     }
     
-    @Test
+    @Test(.disabled("Disabled by Tokens API V1 (Deprecated)"))
     func testAllTokens() async throws {
         // call Jupiter API
         let result = try await JupiterApi.allTokens()
