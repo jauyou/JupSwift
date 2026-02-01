@@ -38,7 +38,6 @@ do {
 ```
 
 - Import Mnemonic into wallet
-- 
 
 ```swift
 ///
