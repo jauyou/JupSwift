@@ -16,9 +16,12 @@ public extension JupiterApi {
     /// - Returns: A `BalancesResponse` object containing balance details.
     /// - Throws: An error if the request fails or decoding fails.
     static func balances(account: String) async throws -> BalancesResponse {
-        await JupiterApi.configure(mode: .lite, component: "ultra")
+        await JupiterApi.configure(component: "ultra")
         let url = await getQuoteURL(endpoint: "/balances/") + account
-        let response = try await AF.request(url, interceptor: retryPolicy)
+        let headers = await getHeaders()
+        let dataRequest = session.request(url, headers: headers, interceptor: retryPolicy)
+        await debugLogRequest(dataRequest)
+        let response = try await dataRequest
             .validate()
             .serializingDecodable(BalancesResponse.self)
             .value
@@ -31,10 +34,13 @@ public extension JupiterApi {
     /// - Returns: A `ShieldResponse` object containing shielded token info.
     /// - Throws: An error if the network request or decoding fails.
     static func shield(mints: [String]) async throws -> ShieldResponse {
-        await JupiterApi.configure(mode: .lite, component: "ultra")
+        await JupiterApi.configure(component: "ultra")
         let mintString = mints.joined(separator: ",")
         let url = await getQuoteURL(endpoint: "/shield") + "?mints=" + mintString
-        let response = try await AF.request(url, interceptor: retryPolicy)
+        let headers = await getHeaders()
+        let dataRequest = session.request(url, headers: headers, interceptor: retryPolicy)
+        await debugLogRequest(dataRequest)
+        let response = try await dataRequest
             .validate()
             .serializingDecodable(ShieldResponse.self)
             .value
@@ -46,9 +52,12 @@ public extension JupiterApi {
     /// - Returns: An array of `Router` objects representing available liquidity routes.
     /// - Throws: An error if the request fails or decoding fails.
     static func routers() async throws -> [Router] {
-        await JupiterApi.configure(mode: .lite, component: "ultra")
+        await JupiterApi.configure(component: "ultra")
         let url = await getQuoteURL(endpoint: "/order/routers")
-        let response = try await AF.request(url, interceptor: retryPolicy)
+        let headers = await getHeaders()
+        let dataRequest = session.request(url, headers: headers, interceptor: retryPolicy)
+        await debugLogRequest(dataRequest)
+        let response = try await dataRequest
             .validate()
             .serializingDecodable([Router].self)
             .value
@@ -65,11 +74,14 @@ public extension JupiterApi {
     /// - Returns: An `OrderResponse` object with the transaction and request ID.
     /// - Throws: An error if the request or decoding fails.
     static func order(inputMint: String, outputMint: String, amount: String, taker: String?) async throws -> OrderResponse {
-        await JupiterApi.configure(mode: .lite, component: "ultra")
+        await JupiterApi.configure(component: "ultra")
         let takerString = taker.map { "&taker=\($0)" } ?? ""
         let param = "?inputMint=\(inputMint)&outputMint=\(outputMint)&amount=\(amount)" + takerString + "&referralAccount=8wgPa9APSfZmhajLpnrKv7NT4MTvcHwCAX6G8wNd6TcR&referralFee=50"
         let url = await getQuoteURL(endpoint: "/order") + param
-        let response = try await AF.request(url, interceptor: retryPolicy)
+        let headers = await getHeaders()
+        let dataRequest = session.request(url, headers: headers, interceptor: retryPolicy)
+        await debugLogRequest(dataRequest)
+        let response = try await dataRequest
             .validate()
             .serializingDecodable(OrderResponse.self)
             .value
@@ -84,17 +96,19 @@ public extension JupiterApi {
     /// - Returns: An `ExecuteResponse` object indicating execution result.
     /// - Throws: An error if the request fails or the response cannot be decoded.
     static func execute(signedTransaction: String, requestId: String) async throws -> ExecuteResponse {
-        await JupiterApi.configure(mode: .lite, component: "ultra")
+        await JupiterApi.configure(component: "ultra")
         let url = await getQuoteURL(endpoint: "/execute")
         let requestBody = ExecuteOrderRequest(signedTransaction: signedTransaction, requestId: requestId)
         let headers = await getHeaders()
 
-        let response = try await AF.request(url,
+        let dataRequest = session.request(url,
                                             method: .post,
                                             parameters: requestBody,
                                             encoder: JSONParameterEncoder.default,
                                             headers: headers,
                                             interceptor: retryPolicy)
+        await debugLogRequest(dataRequest)
+        let response = try await dataRequest
             .validate()
             .serializingDecodable(ExecuteResponse.self)
             .value
@@ -118,7 +132,7 @@ public extension JupiterApi {
             throw NSError(domain: "No transaction to execute", code: -1)
         }
 
-        let signedTx = signTransaction(base64Transaction: transaction, privateKey: privateKey)
+        let signedTx = try signTransaction(base64Transaction: transaction, privateKey: privateKey)
         let response = try await execute(signedTransaction: signedTx, requestId: orderResponse.requestId)
         return response
     }
