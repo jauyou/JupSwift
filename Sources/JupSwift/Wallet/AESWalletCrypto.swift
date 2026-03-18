@@ -38,21 +38,29 @@ actor AESWalletCrypto {
     }
 
     private init() {
-        if #available(iOS 13.0, *) {
-            context.localizedReason = "Authenticate to access wallet"
+        if #available(iOS 13.0, macOS 10.15, watchOS 6.0, tvOS 13.0, *) {
             context.interactionNotAllowed = false
-            // Set reuse duration to 30 seconds
-            context.touchIDAuthenticationAllowableReuseDuration = 30
         }
+
+        #if !os(watchOS)
+        if #available(iOS 13.0, macOS 10.15, *) {
+            context.localizedReason = "Authenticate to access wallet"
+
+            #if !os(tvOS)
+            // Set reuse duration to 30 seconds (not available on tvOS or watchOS)
+            context.touchIDAuthenticationAllowableReuseDuration = 30
+            #endif
+        }
+        #endif
     }
 
-    
+
     enum AESKeyStorageError: Error {
         case failedToSave
         case failedToLoad
         case keyDataCorrupted
     }
-    
+
     /// Loads the locally stored AES symmetric encryption key.
     /// If the key does not exist, a new one is generated and saved to the local file system.
     ///
@@ -85,7 +93,7 @@ actor AESWalletCrypto {
 
         return newKey
     }
-    
+
     /// The file URL where the AES symmetric key will be stored locally.
     /// This uses the application's support directory to persist the key in a safe, sandboxed location.
     /// - Note: The file is named "aes.key" and is saved under the app's Application Support directory.
@@ -100,7 +108,7 @@ actor AESWalletCrypto {
         )
         return appSupportURL.appendingPathComponent("aes.key")
     }
-    
+
     /// Loads the existing symmetric encryption key from secure storage,
     /// or generates a new one if not found.
     ///
@@ -111,7 +119,7 @@ actor AESWalletCrypto {
         if Self.useFallbackStorage {
             return try loadOrGenerateKeyFromLocal()
         }
-        
+
         // Try Keychain first, fallback to file if Keychain unavailable
         do {
             let key = try getKeyFromSecureEnclave()
@@ -122,7 +130,7 @@ actor AESWalletCrypto {
             return try loadOrGenerateKeyFromLocal()
         }
     }
-    
+
     /// Saves the given symmetric encryption key securely into the Secure Enclave or keychain.
     ///
     /// - Parameter key: The `SymmetricKey` to be securely stored.
@@ -142,11 +150,19 @@ actor AESWalletCrypto {
             kSecValueData as String: keyData
         ]
 
-        if #available(iOS 14.0, *) {
+        #if !os(watchOS)
+        if #available(iOS 14.0, macOS 11.0, tvOS 14.0, *) {
             query[kSecUseAuthenticationContext as String] = context
         } else {
             query[kSecUseAuthenticationUI as String] = kSecUseAuthenticationUIAllow
         }
+        #else
+        // watchOS 7.0+ supports kSecUseAuthenticationContext
+        if #available(watchOS 7.0, *) {
+            query[kSecUseAuthenticationContext as String] = context
+        }
+        // Older watchOS or without context: no UI options available
+        #endif
 
         SecItemDelete(query as CFDictionary)
 
@@ -167,11 +183,17 @@ actor AESWalletCrypto {
             kSecReturnData as String: true
         ]
 
-        if #available(iOS 14.0, *) {
+        #if !os(watchOS)
+        if #available(iOS 14.0, macOS 11.0, tvOS 14.0, *) {
             query[kSecUseAuthenticationContext as String] = context
         } else {
             query[kSecUseOperationPrompt as String] = "Authenticate"
         }
+        #else
+        if #available(watchOS 7.0, *) {
+            query[kSecUseAuthenticationContext as String] = context
+        }
+        #endif
 
         var item: CFTypeRef?
         let status = SecItemCopyMatching(query as CFDictionary, &item)
@@ -182,7 +204,6 @@ actor AESWalletCrypto {
 
         return SymmetricKey(data: data)
     }
-
     /// Encrypts the given plaintext data using the securely stored symmetric key.
     ///
     /// - Parameter plaintext: The raw data to be encrypted.
