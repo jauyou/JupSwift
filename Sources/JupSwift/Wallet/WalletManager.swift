@@ -42,6 +42,24 @@ public actor WalletManager {
         }
     }
 
+    /// Whether the wallet's AES key is currently stored without a user-presence requirement.
+    /// Mirrors `AESWalletCrypto.isRememberUnlockEnabled`.
+    public nonisolated var isRememberUnlockEnabled: Bool {
+        AESWalletCrypto.shared.isRememberUnlockEnabled
+    }
+
+    /// Enables or disables the "remember unlock" mode for wallet decryption.
+    ///
+    /// When enabled, subsequent `encrypt`/`decrypt` calls no longer trigger the biometric /
+    /// device-passcode prompt. Switching modes may trigger **one** prompt to read the
+    /// currently-protected AES key before re-wrapping it.
+    ///
+    /// - Parameter enabled: `true` to skip user-presence auth on future decrypts, `false` to restore it.
+    /// - Throws: if the underlying Keychain update fails.
+    public func setRememberUnlock(_ enabled: Bool) async throws {
+        try await AESWalletCrypto.shared.setRememberUnlock(enabled)
+    }
+
     /// Returns the file URL for storing the wallet data JSON file.
     ///
     /// This method locates the application's Application Support directory,

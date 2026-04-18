@@ -30,11 +30,37 @@ actor AESWalletCrypto {
     private let keyAlias = "ag.jup.wallet.secureEnclaveKey"
     static let shared = AESWalletCrypto()
     private let context = LAContext()
-    
+
+    private static let rememberUnlockDefaultsKey = "ag.jup.wallet.rememberUnlock"
+
     /// Check if fallback storage is enabled via environment variable
     /// Set WALLET_USE_FALLBACK=1 to use file-based storage instead of Keychain
     private static var useFallbackStorage: Bool {
         ProcessInfo.processInfo.environment["WALLET_USE_FALLBACK"] == "1"
+    }
+
+    /// When `true`, the AES key is stored in Keychain without a user-presence requirement,
+    /// so decryption no longer triggers a biometric / device-passcode prompt.
+    /// When `false` (default), every decrypt requires user presence.
+    /// Toggle this via `setRememberUnlock(_:)`.
+    nonisolated var isRememberUnlockEnabled: Bool {
+        UserDefaults.standard.bool(forKey: Self.rememberUnlockDefaultsKey)
+    }
+
+    /// Switches the AES key's Keychain access control.
+    ///
+    /// Calling this with `true` re-wraps the current AES key so that future `encrypt`/`decrypt`
+    /// calls no longer prompt for user presence. The switch itself may trigger **one** auth prompt,
+    /// because reading the currently-protected key requires it.
+    ///
+    /// Calling with `false` restores the `.userPresence` requirement.
+    ///
+    /// - Parameter enabled: whether to skip user-presence auth on subsequent decrypts.
+    /// - Throws: if the key cannot be read or re-saved.
+    func setRememberUnlock(_ enabled: Bool) throws {
+        let key = try loadOrGenerateKey()
+        try saveKeyToSecureEnclave(key, requireUserPresence: !enabled)
+        UserDefaults.standard.set(enabled, forKey: Self.rememberUnlockDefaultsKey)
     }
 
     private init() {
@@ -133,38 +159,49 @@ actor AESWalletCrypto {
 
     /// Saves the given symmetric encryption key securely into the Secure Enclave or keychain.
     ///
-    /// - Parameter key: The `SymmetricKey` to be securely stored.
+    /// - Parameters:
+    ///   - key: The `SymmetricKey` to be securely stored.
+    ///   - requireUserPresence: When `true`, the Keychain item is protected with `.userPresence`,
+    ///     so each subsequent read triggers a biometric / device-passcode prompt. When `false`,
+    ///     the item is protected only by `kSecAttrAccessibleWhenUnlockedThisDeviceOnly` —
+    ///     readable without user interaction once the device is unlocked.
     /// - Throws: An error if saving the key fails.
-    private func saveKeyToSecureEnclave(_ key: SymmetricKey) throws {
+    private func saveKeyToSecureEnclave(_ key: SymmetricKey, requireUserPresence: Bool = true) throws {
         let keyData = key.withUnsafeBytes { Data($0) }
-
-        var accessControlError: Unmanaged<CFError>?
-        guard let access = SecAccessControlCreateWithFlags(nil, kSecAttrAccessibleWhenUnlockedThisDeviceOnly, .userPresence, &accessControlError) else {
-            throw accessControlError!.takeRetainedValue()
-        }
 
         var query: [String: Any] = [
             kSecClass as String: kSecClassKey,
             kSecAttrApplicationTag as String: keyAlias,
-            kSecAttrAccessControl as String: access,
             kSecValueData as String: keyData
         ]
 
-        #if !os(watchOS)
-        if #available(iOS 14.0, macOS 11.0, tvOS 14.0, *) {
-            query[kSecUseAuthenticationContext as String] = context
-        } else {
-            query[kSecUseAuthenticationUI as String] = kSecUseAuthenticationUIAllow
-        }
-        #else
-        // watchOS 7.0+ supports kSecUseAuthenticationContext
-        if #available(watchOS 7.0, *) {
-            query[kSecUseAuthenticationContext as String] = context
-        }
-        // Older watchOS or without context: no UI options available
-        #endif
+        if requireUserPresence {
+            var accessControlError: Unmanaged<CFError>?
+            guard let access = SecAccessControlCreateWithFlags(nil, kSecAttrAccessibleWhenUnlockedThisDeviceOnly, .userPresence, &accessControlError) else {
+                throw accessControlError!.takeRetainedValue()
+            }
+            query[kSecAttrAccessControl as String] = access
 
-        SecItemDelete(query as CFDictionary)
+            #if !os(watchOS)
+            if #available(iOS 14.0, macOS 11.0, tvOS 14.0, *) {
+                query[kSecUseAuthenticationContext as String] = context
+            } else {
+                query[kSecUseAuthenticationUI as String] = kSecUseAuthenticationUIAllow
+            }
+            #else
+            if #available(watchOS 7.0, *) {
+                query[kSecUseAuthenticationContext as String] = context
+            }
+            #endif
+        } else {
+            query[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+        }
+
+        let deleteQuery: [String: Any] = [
+            kSecClass as String: kSecClassKey,
+            kSecAttrApplicationTag as String: keyAlias
+        ]
+        SecItemDelete(deleteQuery as CFDictionary)
 
         let status = SecItemAdd(query as CFDictionary, nil)
         if status != errSecSuccess {
