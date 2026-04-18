@@ -139,7 +139,7 @@ actor AESWalletCrypto {
         let keyData = key.withUnsafeBytes { Data($0) }
 
         var accessControlError: Unmanaged<CFError>?
-        guard let access = SecAccessControlCreateWithFlags(nil, kSecAttrAccessibleWhenUnlockedThisDeviceOnly, .biometryCurrentSet, &accessControlError) else {
+        guard let access = SecAccessControlCreateWithFlags(nil, kSecAttrAccessibleWhenUnlockedThisDeviceOnly, .userPresence, &accessControlError) else {
             throw accessControlError!.takeRetainedValue()
         }
 
