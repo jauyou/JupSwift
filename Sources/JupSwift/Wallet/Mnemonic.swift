@@ -155,21 +155,23 @@ func keypairFromSeed(_ seed: Data) -> (publicKey: Data, privateKey: Data)? {
 }
 
 /// Generates a mnemonic phrase according to the BIP39 standard.
-/// - Returns: A mnemonic phrase as a string, typically consisting of 12 or 24 words.
+/// - Returns: A 12-word mnemonic phrase as a string (128 bits of entropy).
 public func generateMnemonic() -> String {
-    // Generate random entropy for mnemonic seed generation
+    // Generate random entropy for mnemonic seed generation (128 bits -> 12 words)
     let entropy = Data((0..<16).map { _ in UInt8.random(in: 0...255) })
 
-    // Calculate the checksum
+    // BIP39: checksum is the first ENT/32 bits of SHA256(entropy)
+    // (4 bits for 128-bit entropy — not a full byte).
     let hash = SHA256.hash(data: entropy)
-    let checksum = hash.prefix(1) // Take the first byte as the checksum
+    let checksumBitCount = entropy.count * 8 / 32
 
-    // Concatenate entropy and checksum bits
-    let entropyWithChecksum = entropy + checksum
-
-    let binaryString = entropyWithChecksum.map { byte in
+    let entropyBits = entropy.map { byte in
         String(byte, radix: 2).leftPadding(toLength: 8, withPad: "0")
     }.joined()
+    let hashBits = Data(hash).map { byte in
+        String(byte, radix: 2).leftPadding(toLength: 8, withPad: "0")
+    }.joined()
+    let binaryString = entropyBits + hashBits.prefix(checksumBitCount)
 
     // Split the concatenated bits into groups of 11 bits
     var binaryWords: [String] = []

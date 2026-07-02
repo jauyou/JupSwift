@@ -15,6 +15,29 @@ struct MnemonicTests {
     func testGenerateMnemonic() {
         let mnemonic = generateMnemonic()
         print("mnemonic = \(mnemonic)")
+
+        // BIP39: 128-bit entropy must yield exactly 12 words
+        #expect(mnemonic.split(separator: " ").count == 12)
+
+        // and the generated phrase must pass our own validator
+        switch validateMnemonics(mnemonic) {
+        case .success:
+            #expect(true)
+        case .failure(let error):
+            #expect(Bool(false), "Generated mnemonic failed validation: \(error)")
+        }
+    }
+
+    @Test
+    func testGenerateMnemonicIsRandom() {
+        #expect(generateMnemonic() != generateMnemonic())
+    }
+
+    @Test
+    func testGeneratedMnemonicDerivesKeypair() {
+        let mnemonic = generateMnemonic()
+        let keypair = keypairOfMnemonicWalletByIndex(index: 0, mnemonic: mnemonic)
+        #expect(keypair != nil)
     }
 
     @Test
